@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Liste de Tâches</title>
+    <title>Ma Liste de Tâches Partagée</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -16,10 +16,12 @@
         .completed { text-decoration: line-through; color: #888; }
         .delete { background-color: #f44336; color: white; border: none; padding: 5px 10px; margin-left: 10px; cursor: pointer; border-radius: 4px; }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Ma Liste de Tâches</h1>
+        <h1>Ma Liste de Tâches Partagée</h1>
         <div class="input-container">
             <input type="text" id="newNote" placeholder="Ajouter une nouvelle note...">
             <button id="addNote">+</button>
@@ -28,53 +30,72 @@
     </div>
 
     <script>
-        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+        // Configuration Firebase (à remplacer par vos propres détails de configuration)
+        const firebaseConfig = {
+            apiKey: "VOTRE_API_KEY",
+            authDomain: "VOTRE_AUTH_DOMAIN",
+            databaseURL: "VOTRE_DATABASE_URL",
+            projectId: "VOTRE_PROJECT_ID",
+            storageBucket: "VOTRE_STORAGE_BUCKET",
+            messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
+            appId: "VOTRE_APP_ID"
+        };
 
-        function renderNotes() {
-            const noteList = document.getElementById('noteList');
-            noteList.innerHTML = '';
-            notes.forEach((note, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote(${index})">
-                    <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
-                    <button class="delete" onclick="deleteNote(${index})">X</button>
-                `;
-                noteList.appendChild(li);
-            });
-            saveNotes();
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const notesRef = database.ref('notes');
+
+        function renderNote(key, note) {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote('${key}', ${note.completed})">
+                <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
+                <button class="delete" onclick="deleteNote('${key}')">X</button>
+            `;
+            document.getElementById('noteList').appendChild(li);
         }
 
         function addNote() {
             const newNoteInput = document.getElementById('newNote');
             const noteText = newNoteInput.value.trim();
             if (noteText !== '') {
-                notes.push({ text: noteText, completed: false });
+                notesRef.push({ text: noteText, completed: false });
                 newNoteInput.value = '';
-                renderNotes();
             }
         }
 
-        function toggleNote(index) {
-            notes[index].completed = !notes[index].completed;
-            renderNotes();
+        function toggleNote(key, completed) {
+            notesRef.child(key).update({ completed: !completed });
         }
 
-        function deleteNote(index) {
-            notes.splice(index, 1);
-            renderNotes();
+        function deleteNote(key) {
+            notesRef.child(key).remove();
         }
 
-        function saveNotes() {
-            localStorage.setItem('notes', JSON.stringify(notes));
-        }
+        // Écouter les changements dans la base de données
+        notesRef.on('child_added', snapshot => {
+            renderNote(snapshot.key, snapshot.val());
+        });
+
+        notesRef.on('child_changed', snapshot => {
+            const liToUpdate = document.querySelector(`li[data-key="${snapshot.key}"]`);
+            if (liToUpdate) {
+                liToUpdate.parentNode.replaceChild(renderNote(snapshot.key, snapshot.val()), liToUpdate);
+            }
+        });
+
+        notesRef.on('child_removed', snapshot => {
+            const liToRemove = document.querySelector(`li[data-key="${snapshot.key}"]`);
+            if (liToRemove) {
+                liToRemove.remove();
+            }
+        });
 
         document.getElementById('addNote').addEventListener('click', addNote);
         document.getElementById('newNote').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') addNote();
         });
-
-        renderNotes();
     </script>
 </body>
 </html>
