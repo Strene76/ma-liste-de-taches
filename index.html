@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Liste de Tâches</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .input-container { display: flex; margin-bottom: 20px; }
+        #newNote { flex-grow: 1; padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; }
+        #addNote { background-color: #4CAF50; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 0 4px 4px 0; }
+        ul { list-style-type: none; padding: 0; }
+        li { background-color: #f9f9f9; border: 1px solid #ddd; margin-bottom: 10px; padding: 10px; border-radius: 4px; display: flex; align-items: center; }
+        .completed { text-decoration: line-through; color: #888; }
+        .delete { background-color: #f44336; color: white; border: none; padding: 5px 10px; margin-left: 10px; cursor: pointer; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ma Liste de Tâches</h1>
+        <div class="input-container">
+            <input type="text" id="newNote" placeholder="Ajouter une nouvelle note...">
+            <button id="addNote">+</button>
+        </div>
+        <ul id="noteList"></ul>
+    </div>
+
+    <script>
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+        function renderNotes() {
+            const noteList = document.getElementById('noteList');
+            noteList.innerHTML = '';
+            notes.forEach((note, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote(${index})">
+                    <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
+                    <button class="delete" onclick="deleteNote(${index})">X</button>
+                `;
+                noteList.appendChild(li);
+            });
+            saveNotes();
+        }
+
+        function addNote() {
+            const newNoteInput = document.getElementById('newNote');
+            const noteText = newNoteInput.value.trim();
+            if (noteText !== '') {
+                notes.push({ text: noteText, completed: false });
+                newNoteInput.value = '';
+                renderNotes();
+            }
+        }
+
+        function toggleNote(index) {
+            notes[index].completed = !notes[index].completed;
+            renderNotes();
+        }
+
+        function deleteNote(index) {
+            notes.splice(index, 1);
+            renderNotes();
+        }
+
+        function saveNotes() {
+            localStorage.setItem('notes', JSON.stringify(notes));
+        }
+
+        document.getElementById('addNote').addEventListener('click', addNote);
+        document.getElementById('newNote').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addNote();
+        });
+
+        renderNotes();
+    </script>
+</body>
+</html>
