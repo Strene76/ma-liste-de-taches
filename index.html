@@ -32,14 +32,14 @@
     <script>
         // Configuration Firebase (à remplacer par vos propres détails de configuration)
         const firebaseConfig = {
-  apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
-  authDomain: "ma-liste-de-taches.firebaseapp.com",
-  databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
-  projectId: "ma-liste-de-taches",
-  storageBucket: "ma-liste-de-taches.appspot.com",
-  messagingSenderId: "614607808736",
-  appId: "1:614607808736:web:d4490906c783cb14040885",
-         };
+            apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
+            authDomain: "ma-liste-de-taches.firebaseapp.com",
+            databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
+            projectId: "ma-liste-de-taches",
+            storageBucket: "ma-liste-de-taches.appspot.com",
+            messagingSenderId: "614607808736",
+            appId: "1:614607808736:web:d4490906c783cb14040885",
+        };
 
         // Initialiser Firebase
         firebase.initializeApp(firebaseConfig);
@@ -48,12 +48,13 @@
 
         function renderNote(key, note) {
             const li = document.createElement('li');
+            li.setAttribute('data-key', key);
             li.innerHTML = `
                 <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote('${key}', ${note.completed})">
                 <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
                 <button class="delete" onclick="deleteNote('${key}')">X</button>
             `;
-            document.getElementById('noteList').appendChild(li);
+            return li;
         }
 
         function addNote() {
@@ -75,7 +76,8 @@
 
         // Écouter les changements dans la base de données
         notesRef.on('child_added', snapshot => {
-            renderNote(snapshot.key, snapshot.val());
+            const noteList = document.getElementById('noteList');
+            noteList.appendChild(renderNote(snapshot.key, snapshot.val()));
         });
 
         notesRef.on('child_changed', snapshot => {
