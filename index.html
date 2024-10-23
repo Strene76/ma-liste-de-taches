@@ -5,25 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ma Liste de Tâches Partagée</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #333; }
-        .input-container { display: flex; margin-bottom: 20px; }
-        #newNote { flex-grow: 1; padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; }
-        #addNote { background-color: #4CAF50; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 0 4px 4px 0; }
-        ul { list-style-type: none; padding: 0; }
-        li { background-color: #f9f9f9; border: 1px solid #ddd; margin-bottom: 10px; padding: 10px; border-radius: 4px; display: flex; align-items: center; }
-        .completed { text-decoration: line-through; color: #888; }
-        .delete { background-color: #f44336; color: white; border: none; padding: 5px 10px; margin-left: 10px; cursor: pointer; border-radius: 4px; }
+        /* Mode sombre */
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #1a1a1a; 
+            color: #ffffff;
+            margin: 0; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 500px; 
+            margin: 0 auto; 
+            background-color: #2d2d2d; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+        }
+        h1 { 
+            text-align: center; 
+            color: #ffffff;
+            margin-bottom: 30px;
+        }
+        .input-container { 
+            display: flex; 
+            margin-bottom: 20px; 
+        }
+        #newNote { 
+            flex-grow: 1; 
+            padding: 12px; 
+            font-size: 16px; 
+            border: none; 
+            background-color: #404040; 
+            color: #ffffff;
+            border-radius: 4px 0 0 4px; 
+        }
+        #newNote::placeholder {
+            color: #aaaaaa;
+        }
+        #newNote:focus {
+            outline: none;
+            background-color: #4a4a4a;
+        }
+        #addNote { 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            border-radius: 0 4px 4px 0;
+            transition: background-color 0.3s ease;
+        }
+        #addNote:hover {
+            background-color: #3d8b40;
+        }
+        ul { 
+            list-style-type: none; 
+            padding: 0; 
+        }
+        li { 
+            background-color: #404040; 
+            border: 1px solid #505050; 
+            margin-bottom: 10px; 
+            padding: 12px; 
+            border-radius: 4px; 
+            display: flex; 
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        li:hover {
+            background-color: #454545;
+            transform: translateX(5px);
+        }
+        .completed { 
+            text-decoration: line-through; 
+            color: #888888; 
+        }
+        .delete { 
+            background-color: #dc3545; 
+            color: white; 
+            border: none; 
+            padding: 8px 12px; 
+            margin-left: 10px; 
+            cursor: pointer; 
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .delete:hover {
+            background-color: #c82333;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            accent-color: #4CAF50;
+        }
+        /* Animation pour les nouveaux éléments */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        li {
+            animation: fadeIn 0.3s ease;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Ma Liste de Tâches Partagée</h1>
+        <h1>Ma Liste de Tâches</h1>
         <div class="input-container">
-            <input type="text" id="newNote" placeholder="Ajouter une nouvelle note...">
+            <input type="text" id="newNote" placeholder="Ajouter une nouvelle tâche...">
             <button id="addNote">+</button>
         </div>
         <ul id="noteList"></ul>
@@ -32,13 +125,13 @@
     <script>
         // Configuration Firebase (à remplacer par vos propres détails de configuration)
         const firebaseConfig = {
-            apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
-  authDomain: "ma-liste-de-taches.firebaseapp.com",
-  databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
-  projectId: "ma-liste-de-taches",
-  storageBucket: "ma-liste-de-taches.appspot.com",
-  messagingSenderId: "614607808736",
-  appId: "1:614607808736:web:d4490906c783cb14040885",
+            apiKey: "VOTRE_API_KEY",
+            authDomain: "VOTRE_AUTH_DOMAIN",
+            databaseURL: "VOTRE_DATABASE_URL",
+            projectId: "VOTRE_PROJECT_ID",
+            storageBucket: "VOTRE_STORAGE_BUCKET",
+            messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
+            appId: "VOTRE_APP_ID"
         };
 
         // Initialiser Firebase
@@ -52,7 +145,7 @@
             li.innerHTML = `
                 <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote('${key}', ${note.completed})">
                 <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
-                <button class="delete" onclick="deleteNote('${key}')">X</button>
+                <button class="delete" onclick="deleteNote('${key}')">×</button>
             `;
             return li;
         }
@@ -71,16 +164,21 @@
         }
 
         function deleteNote(key) {
-            notesRef.child(key).remove();
+            console.log('Deleting note with key:', key);
+            notesRef.child(key).remove()
+                .then(() => console.log('Note successfully deleted'))
+                .catch(error => console.error('Error deleting note:', error));
         }
 
         // Écouter les changements dans la base de données
         notesRef.on('child_added', snapshot => {
+            console.log('Note added:', snapshot.key);
             const noteList = document.getElementById('noteList');
             noteList.appendChild(renderNote(snapshot.key, snapshot.val()));
         });
 
         notesRef.on('child_changed', snapshot => {
+            console.log('Note changed:', snapshot.key);
             const liToUpdate = document.querySelector(`li[data-key="${snapshot.key}"]`);
             if (liToUpdate) {
                 liToUpdate.parentNode.replaceChild(renderNote(snapshot.key, snapshot.val()), liToUpdate);
@@ -88,6 +186,7 @@
         });
 
         notesRef.on('child_removed', snapshot => {
+            console.log('Note removed:', snapshot.key);
             const liToRemove = document.querySelector(`li[data-key="${snapshot.key}"]`);
             if (liToRemove) {
                 liToRemove.remove();
