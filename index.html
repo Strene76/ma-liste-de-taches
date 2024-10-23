@@ -1,1 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Covoiturage U15</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        :root {
+            --primary-color: #00a8ff;
+            --secondary-color: #26de81;
+            --background-color: #1e272e;
+            --surface-color: #2d3436;
+            --hover-color: #0097e6;
+            --text-color: #dfe6e9;
+            --text-muted: #b2bec3;
+            --border-radius: 8px;
+            --danger-color: #ff4757;
+            --danger-hover: #ee3545;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--surface-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1, h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
 
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 168, 255, 0.2);
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-1px);
+        }
+        
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        li {
+            background-color: rgba(255, 255, 255, 0.05);
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .assignation {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .assignation h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+        }
+        
+        .btn-supprimer {
+            width: auto;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            background-color: var(--danger-color);
+            margin: 0 0 0 10px;
+        }
+        
+        .btn-supprimer:hover {
+            background-color: var(--danger-hover);
+        }
+        
+        .nombre-places {
+            width: 60px;
+            margin-left: 10px;
+        }
+
+        /* Style pour les options dans les menus déroulants */
+        option {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 5px;
+        }
+
+        /* Style pour mettre en évidence les sections actives */
+        .section:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Améliorations pour les états de focus */
+        *:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 168, 255, 0.2);
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            input, select, button {
+                font-size: 16px;
+            }
+            
+            .btn-supprimer {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Covoiturage U15</h1>
+
+        <div class="section">
+            <h2>Date du covoiturage</h2>
+            <input type="date" id="dateCovoiturage">
+        </div>
+
+        <div class="section">
+            <h2>Ajouter un joueur</h2>
+            <input type="text" id="nomJoueur" placeholder="Nom du joueur">
+            <button onclick="ajouterJoueur()">Ajouter</button>
+            <ul id="listeJoueurs"></ul>
+        </div>
+
+        <div class="section">
+    <h2>Ajouter un conducteur</h2>
+    <input type="text" id="nomConducteur" placeholder="Nom du conducteur">
+    <select id="trajet">
+        <option value="aller">Aller</option>
+        <option value="retour">Retour</option>
+        <option value="allerRetour">Aller-Retour</option>
+    </select>
+    <input type="number" id="nombrePlaces" class="nombre-places" min="1" max="8" value="4" placeholder="Places">
+    <button onclick="ajouterConducteur()">Ajouter</button>
+    <ul id="listeConducteurs"></ul>
+</div>
+
+        <div class="section">
+            <h2>Assigner les joueurs aux voitures</h2>
+            <select id="selectConducteur"></select>
+            <select id="selectJoueur"></select>
+            <button onclick="assignerJoueur()">Assigner</button>
+        </div>
+
+        <div class="section">
+            <h2>Assignations actuelles</h2>
+            <div id="assignations"></div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+           apiKey: "AIzaSyBfr0A4LZbuFc8D8MI0wL_nfzO3Atbcqwk",
+  authDomain: "covoiturage-u15.firebaseapp.com",
+  databaseURL: "https://covoiturage-u15-default-rtdb.firebaseio.com",
+  projectId: "covoiturage-u15",
+  storageBucket: "covoiturage-u15.appspot.com",
+  messagingSenderId: "83669001760",
+  appId: "1:83669001760:web:b0d65f3832344dd928be45"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const covoiturageRef = database.ref('covoiturage');
+
+        function ajouterJoueur() {
+            const nom = document.getElementById('nomJoueur').value;
+            if (nom) {
+                covoiturageRef.child('joueurs').push({
+                    nom: nom,
+                    assigneAller: false,
+                    assigneRetour: false
+                });
+                document.getElementById('nomJoueur').value = '';
+            }
+        }
+
+        function supprimerJoueur(key) {
+            covoiturageRef.child('joueurs').child(key).remove();
+        }
+
+       function ajouterConducteur() {
+    const nom = document.getElementById('nomConducteur').value;
+    const trajet = document.getElementById('trajet').value;
+    const nombrePlaces = parseInt(document.getElementById('nombrePlaces').value, 10);
+    if (nom && nombrePlaces > 0) {
+        covoiturageRef.child('conducteurs').push({
+            nom: nom,
+            trajet: trajet,
+            nombrePlaces: nombrePlaces,
+            passagers: {},
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        document.getElementById('nomConducteur').value = '';
+        document.getElementById('nombrePlaces').value = '4'; // Réinitialiser à la valeur par défaut
+    }
+}
+
+        function supprimerConducteur(key) {
+            covoiturageRef.child('conducteurs').child(key).remove();
+        }
+
+        function assignerJoueur() {
+            const selectConducteur = document.getElementById('selectConducteur');
+            const selectJoueur = document.getElementById('selectJoueur');
+            const conducteurKey = selectConducteur.value;
+            const joueurKey = selectJoueur.value;
+            
+            if (conducteurKey && joueurKey) {
+                covoiturageRef.child('conducteurs').child(conducteurKey).once('value', (snapshot) => {
+                    const conducteur = snapshot.val();
+                    covoiturageRef.child('joueurs').child(joueurKey).once('value', (snapshot) => {
+                        const joueur = snapshot.val();
+                        if (conducteur.trajet === 'aller' && !joueur.assigneAller) {
+                            covoiturageRef.child('conducteurs').child(conducteurKey).child('passagers').child(joueurKey).set(true);
+                            covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(true);
+                        } else if (conducteur.trajet === 'retour' && !joueur.assigneRetour) {
+                            covoiturageRef.child('conducteurs').child(conducteurKey).child('passagers').child(joueurKey).set(true);
+                            covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(true);
+                        } else if (conducteur.trajet === 'allerRetour' && !joueur.assigneAller && !joueur.assigneRetour) {
+                            covoiturageRef.child('conducteurs').child(conducteurKey).child('passagers').child(joueurKey).set(true);
+                            covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(true);
+                            covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(true);
+                        } else {
+                            alert("Ce joueur est déjà assigné pour ce trajet.");
+                            return; // Sortir de la fonction si l'assignation n'est pas possible
+                        }
+                        // Réinitialiser seulement la sélection du joueur
+                        selectJoueur.selectedIndex = 0;
+                        // Mettre à jour la liste des joueurs disponibles
+                        updateJoueursList(conducteurKey);
+                    });
+                });
+            }
+        }
+        function updateJoueursList(conducteurKey) {
+            covoiturageRef.child('conducteurs').child(conducteurKey).once('value', (conducteurSnapshot) => {
+                const conducteur = conducteurSnapshot.val();
+                covoiturageRef.child('joueurs').once('value', (joueursSnapshot) => {
+                    const joueurs = joueursSnapshot.val();
+                    const selectJoueur = document.getElementById('selectJoueur');
+                    selectJoueur.innerHTML = '<option value="">Sélectionnez un joueur</option>';
+                    
+                    for (const [key, joueur] of Object.entries(joueurs)) {
+                        if ((conducteur.trajet === 'aller' && !joueur.assigneAller) ||
+                            (conducteur.trajet === 'retour' && !joueur.assigneRetour) ||
+                            (conducteur.trajet === 'allerRetour' && (!joueur.assigneAller || !joueur.assigneRetour))) {
+                            const option = document.createElement('option');
+                            option.value = key;
+                            option.textContent = joueur.nom;
+                            selectJoueur.appendChild(option);
+                        }
+                    }
+                });
+            });
+        }
+
+        function supprimerAssignation(conducteurKey, joueurKey) {
+            covoiturageRef.child('conducteurs').child(conducteurKey).child('passagers').child(joueurKey).remove();
+            covoiturageRef.child('joueurs').child(joueurKey).once('value', (snapshot) => {
+                const joueur = snapshot.val();
+                const updates = {};
+                if (joueur.assigneAller) updates['assigneAller'] = false;
+                if (joueur.assigneRetour) updates['assigneRetour'] = false;
+                covoiturageRef.child('joueurs').child(joueurKey).update(updates);
+            });
+        }
+
+        covoiturageRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            
+            const listeJoueurs = document.getElementById('listeJoueurs');
+            listeJoueurs.innerHTML = '';
+            for (const key in data.joueurs) {
+                const joueur = data.joueurs[key];
+                const li = document.createElement('li');
+                li.textContent = joueur.nom;
+                const btnSupprimer = document.createElement('button');
+                btnSupprimer.textContent = 'Supprimer';
+                btnSupprimer.className = 'btn-supprimer';
+                btnSupprimer.onclick = () => supprimerJoueur(key);
+                li.appendChild(btnSupprimer);
+                listeJoueurs.appendChild(li);
+            }
+
+            const listeConducteurs = document.getElementById('listeConducteurs');
+            listeConducteurs.innerHTML = '';
+            for (const key in data.conducteurs) {
+                const conducteur = data.conducteurs[key];
+                const li = document.createElement('li');
+                li.textContent = `${conducteur.nom} (${conducteur.trajet})`;
+                const btnSupprimer = document.createElement('button');
+                btnSupprimer.textContent = 'Supprimer';
+                btnSupprimer.className = 'btn-supprimer';
+                btnSupprimer.onclick = () => supprimerConducteur(key);
+                li.appendChild(btnSupprimer);
+                listeConducteurs.appendChild(li);
+            }
+
+            const selectConducteur = document.getElementById('selectConducteur');
+            const selectJoueur = document.getElementById('selectJoueur');
+            const selectedConducteurKey = selectConducteur.value; // Sauvegarder la sélection actuelle
+            selectConducteur.innerHTML = '<option value="">Sélectionnez un conducteur</option>';
+            selectJoueur.innerHTML = '<option value="">Sélectionnez un joueur</option>';
+            
+            const conducteursSorted = Object.entries(data.conducteurs || {}).sort((a, b) => a[1].timestamp - b[1].timestamp);
+            
+            for (const [key, conducteur] of conducteursSorted) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = `${conducteur.nom} (${conducteur.trajet})`;
+                selectConducteur.appendChild(option);
+            }
+
+            // Restaurer la sélection du conducteur si elle existait
+            if (selectedConducteurKey) {
+                selectConducteur.value = selectedConducteurKey;
+                updateJoueursList(selectedConducteurKey);
+            }
+
+            // Ajouter un écouteur d'événements pour mettre à jour la liste des joueurs quand le conducteur change
+            selectConducteur.addEventListener('change', (e) => {
+                updateJoueursList(e.target.value);
+            });
+            for (const key in data.joueurs) {
+                const joueur = data.joueurs[key];
+                if (!joueur.assigneAller || !joueur.assigneRetour) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = joueur.nom;
+                    selectJoueur.appendChild(option);
+                }
+            }
+
+            const assignationsDiv = document.getElementById('assignations');
+            assignationsDiv.innerHTML = '';
+            for (const [conducteurKey, conducteur] of conducteursSorted) {
+                const assignation = document.createElement('div');
+                assignation.className = 'assignation';
+                assignation.innerHTML = `<h3>${conducteur.nom} (${conducteur.trajet})</h3>`;
+                const ul = document.createElement('ul');
+                if (conducteur.passagers) {
+                    Object.keys(conducteur.passagers).forEach(joueurKey => {
+                        if (data.joueurs && data.joueurs[joueurKey]) {
+                            const li = document.createElement('li');
+                            li.textContent = data.joueurs[joueurKey].nom;
+                            const btnSupprimer = document.createElement('button');
+                            btnSupprimer.textContent = 'Supprimer';
+                            btnSupprimer.className = 'btn-supprimer';
+                            btnSupprimer.onclick = () => supprimerAssignation(conducteurKey, joueurKey);
+                            li.appendChild(btnSupprimer);
+                            ul.appendChild(li);
+                        }
+                    });
+                }
+                if (ul.children.length === 0) {
+                    const li = document.createElement('li');
+                    li.textContent = "Aucun passager assigné";
+                    ul.appendChild(li);
+                }
+                assignation.appendChild(ul);
+                assignationsDiv.appendChild(assignation);
+            }
+        });
+
+        document.getElementById('dateCovoiturage').addEventListener('change', (e) => {
+            covoiturageRef.child('date').set(e.target.value);
+        });
+
+        covoiturageRef.child('date').on('value', (snapshot) => {
+            document.getElementById('dateCovoiturage').value = snapshot.val() || '';
+        });
+    </script>
+</body>
+</html>
