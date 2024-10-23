@@ -110,9 +110,17 @@
         }
         
         .assignation h3 {
-            color: var(--secondary-color);
-            margin-top: 0;
-        }
+    color: var(--secondary-color);
+    margin-top: 0;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.assignation h3 span {
+    font-size: 0.9em;
+}
         
         .btn-supprimer {
             width: auto;
@@ -401,34 +409,34 @@
             }
 
             const assignationsDiv = document.getElementById('assignations');
-            assignationsDiv.innerHTML = '';
-            for (const [conducteurKey, conducteur] of conducteursSorted) {
-                const assignation = document.createElement('div');
-                assignation.className = 'assignation';
-                assignation.innerHTML = `<h3>${conducteur.nom} (${conducteur.trajet})</h3>`;
-                const ul = document.createElement('ul');
-                if (conducteur.passagers) {
-                    Object.keys(conducteur.passagers).forEach(joueurKey => {
-                        if (data.joueurs && data.joueurs[joueurKey]) {
-                            const li = document.createElement('li');
-                            li.textContent = data.joueurs[joueurKey].nom;
-                            const btnSupprimer = document.createElement('button');
-                            btnSupprimer.textContent = 'Supprimer';
-                            btnSupprimer.className = 'btn-supprimer';
-                            btnSupprimer.onclick = () => supprimerAssignation(conducteurKey, joueurKey);
-                            li.appendChild(btnSupprimer);
-                            ul.appendChild(li);
-                        }
-                    });
-                }
-                if (ul.children.length === 0) {
-                    const li = document.createElement('li');
-                    li.textContent = "Aucun passager assigné";
-                    ul.appendChild(li);
-                }
-                assignation.appendChild(ul);
-                assignationsDiv.appendChild(assignation);
-            }
+assignationsDiv.innerHTML = '';
+for (const key in data.conducteurs) {
+    const conducteur = data.conducteurs[key];
+    const assignation = document.createElement('div');
+    assignation.className = 'assignation';
+    
+    // Calculer le nombre de places utilisées et restantes
+    const nombrePassagers = Object.keys(conducteur.passagers || {}).length;
+    const nombrePlacesRestantes = conducteur.nombrePlaces - nombrePassagers;
+    
+    // Créer l'en-tête avec le nom du conducteur et les places
+    const header = document.createElement('h3');
+    header.textContent = `${conducteur.nom} (${conducteur.trajet}) - Places : ${nombrePassagers}/${conducteur.nombrePlaces} (${nombrePlacesRestantes} disponible${nombrePlacesRestantes > 1 ? 's' : ''})`;
+    header.style.color = nombrePlacesRestantes > 0 ? 'var(--secondary-color)' : 'var(--danger-color)';
+    assignation.appendChild(header);
+
+    // Liste des passagers
+    const ul = document.createElement('ul');
+    for (const joueurKey in conducteur.passagers) {
+        if (data.joueurs[joueurKey]) {  // Vérifier si le joueur existe toujours
+            const li = document.createElement('li');
+            li.textContent = data.joueurs[joueurKey].nom;
+            ul.appendChild(li);
+        }
+    }
+    assignation.appendChild(ul);
+    assignationsDiv.appendChild(assignation);
+}
         });
 
         document.getElementById('dateCovoiturage').addEventListener('change', (e) => {
