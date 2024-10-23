@@ -189,15 +189,47 @@
         }
 
         .assignation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-        .assignation-title {
-            flex: 1;
-        }
+.assignation-title {
+    margin: 0;
+    flex: 1;
+}
+
+.places-info {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: var(--border-radius);
+    font-size: 0.9em;
+    font-weight: bold;
+    min-width: 80px;
+    text-align: center;
+}
+
+.places-available {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.places-warning {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.assignation ul {
+    margin-top: 10px;
+}
+
+.assignation li {
+    padding: 8px 12px;
+    margin-bottom: 5px;
+}
     </style>
 </head>
 <body>
@@ -359,44 +391,41 @@
         }
         // Modifier la fonction qui met à jour les assignations
         function mettreAJourAssignations(data) {
-            const assignationsDiv = document.getElementById('assignations');
-            assignationsDiv.innerHTML = '';
-            
-            for (const key in data.conducteurs) {
-                const conducteur = data.conducteurs[key];
-                const assignation = document.createElement('div');
-                assignation.className = 'assignation';
-                
-                const nombrePassagers = Object.keys(conducteur.passagers || {}).length;
-                const placesRestantes = conducteur.nombrePlaces - nombrePassagers;
-                
-                // Créer le header de l'assignation
-                const headerDiv = document.createElement('div');
-                headerDiv.className = 'assignation-header';
-                
-                // Titre avec nom du conducteur et trajet
-                const titleH3 = document.createElement('h3');
-                titleH3.className = 'assignation-title';
-                titleH3.textContent = `${conducteur.nom} (${conducteur.trajet})`;
-                
-                // Badge pour les places disponibles
-                const placesSpan = document.createElement('span');
-                placesSpan.className = `places-info ${placesRestantes === 0 ? 'places-warning' : 'places-available'}`;
-                placesSpan.textContent = `${placesRestantes} place${placesRestantes > 1 ? 's' : ''} disponible${placesRestantes > 1 ? 's' : ''}`;
-                
-                headerDiv.appendChild(titleH3);
-                headerDiv.appendChild(placesSpan);
-                assignation.appendChild(headerDiv);
+    const assignationsDiv = document.getElementById('assignations');
+    assignationsDiv.innerHTML = '';
+    
+    for (const key in data.conducteurs) {
+        const conducteur = data.conducteurs[key];
+        const assignation = document.createElement('div');
+        assignation.className = 'assignation';
+        
+        const nombrePassagers = Object.keys(conducteur.passagers || {}).length;
+        const placesRestantes = conducteur.nombrePlaces - nombrePassagers;
+        
+        // Créer l'en-tête de l'assignation avec le nombre de places
+        assignation.innerHTML = `
+            <div class="assignation-header">
+                <h3 class="assignation-title">${conducteur.nom} (${conducteur.trajet})</h3>
+                <span class="places-info ${placesRestantes === 0 ? 'places-warning' : 'places-available'}">
+                    ${nombrePassagers}/${conducteur.nombrePlaces} places 
+                    (${placesRestantes} disponible${placesRestantes > 1 ? 's' : ''})
+                </span>
+            </div>
+        `;
 
-                // Liste des passagers
-                const ul = document.createElement('ul');
-                for (const joueurKey in conducteur.passagers) {
-                    if (data.joueurs[joueurKey]) {  // Vérifier si le joueur existe toujours
-                        const li = document.createElement('li');
-                        li.textContent = data.joueurs[joueurKey].nom;
-                        ul.appendChild(li);
-                    }
-                }
+        // Liste des passagers
+        const ul = document.createElement('ul');
+        for (const joueurKey in conducteur.passagers) {
+            if (data.joueurs && data.joueurs[joueurKey]) {
+                const li = document.createElement('li');
+                li.textContent = data.joueurs[joueurKey].nom;
+                ul.appendChild(li);
+            }
+        }
+        assignation.appendChild(ul);
+        assignationsDiv.appendChild(assignation);
+    }
+}
                 assignation.appendChild(ul);
                 assignationsDiv.appendChild(assignation);
             }
