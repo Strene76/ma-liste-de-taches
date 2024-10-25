@@ -3,199 +3,516 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Liste de Tâches Partagée</title>
-    <style>
-        /* Mode sombre */
-        body { 
-            font-family: Arial, sans-serif; 
-            background-color: #1a1a1a; 
-            color: #ffffff;
-            margin: 0; 
-            padding: 20px; 
-        }
-        .container { 
-            max-width: 500px; 
-            margin: 0 auto; 
-            background-color: #2d2d2d; 
-            padding: 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
-        }
-        h1 { 
-            text-align: center; 
-            color: #ffffff;
-            margin-bottom: 30px;
-        }
-        .input-container { 
-            display: flex; 
-            margin-bottom: 20px; 
-        }
-        #newNote { 
-            flex-grow: 1; 
-            padding: 12px; 
-            font-size: 16px; 
-            border: none; 
-            background-color: #404040; 
-            color: #ffffff;
-            border-radius: 4px 0 0 4px; 
-        }
-        #newNote::placeholder {
-            color: #aaaaaa;
-        }
-        #newNote:focus {
-            outline: none;
-            background-color: #4a4a4a;
-        }
-        #addNote { 
-            background-color: #4CAF50; 
-            color: white; 
-            border: none; 
-            padding: 12px 20px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            border-radius: 0 4px 4px 0;
-            transition: background-color 0.3s ease;
-        }
-        #addNote:hover {
-            background-color: #3d8b40;
-        }
-        ul { 
-            list-style-type: none; 
-            padding: 0; 
-        }
-        li { 
-            background-color: #404040; 
-            border: 1px solid #505050; 
-            margin-bottom: 10px; 
-            padding: 12px; 
-            border-radius: 4px; 
-            display: flex; 
-            align-items: center;
-            transition: transform 0.2s ease, background-color 0.2s ease;
-        }
-        li:hover {
-            background-color: #454545;
-            transform: translateX(5px);
-        }
-        .completed { 
-            text-decoration: line-through; 
-            color: #888888; 
-        }
-        .delete { 
-            background-color: #dc3545; 
-            color: white; 
-            border: none; 
-            padding: 8px 12px; 
-            margin-left: 10px; 
-            cursor: pointer; 
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-        }
-        .delete:hover {
-            background-color: #c82333;
-        }
-        input[type="checkbox"] {
-            margin-right: 10px;
-            width: 18px;
-            height: 18px;
-            accent-color: #4CAF50;
-        }
-        /* Animation pour les nouveaux éléments */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        li {
-            animation: fadeIn 0.3s ease;
-        }
-    </style>
+    <title>Covoiturage U15</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        :root {
+            --primary-color: #00a8ff;
+            --secondary-color: #26de81;
+            --background-color: #1e272e;
+            --surface-color: #2d3436;
+            --hover-color: #0097e6;
+            --text-color: #dfe6e9;
+            --text-muted: #b2bec3;
+            --border-radius: 8px;
+            --danger-color: #ff4757;
+            --danger-hover: #ee3545;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--surface-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1, h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 168, 255, 0.2);
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-1px);
+        }
+        
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        li {
+            background-color: rgba(255, 255, 255, 0.05);
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .assignation {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .assignation h3 {
+    color: var(--secondary-color);
+    margin-top: 0;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.assignation h3 span {
+    font-size: 0.9em;
+}
+        
+        .btn-supprimer {
+            width: auto;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            background-color: var(--danger-color);
+            margin: 0 0 0 10px;
+        }
+        
+        .btn-supprimer:hover {
+            background-color: var(--danger-hover);
+        }
+        .places-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.places-container label {
+    color: var(--text-color);
+    font-size: 0.9em;
+}
+.joueur-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+}
+
+.status-badges {
+    display: flex;
+    gap: 10px;
+    margin-right: 10px;
+}
+
+.badge {
+    padding: 3px 8px;
+    border-radius: var(--border-radius);
+    font-size: 0.8em;
+}
+
+.badge-aller {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.badge-retour {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.badge-inactive {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+}
+
+.nombre-places {
+    width: 60px;
+    margin: 0;
+}
+        .nombre-places {
+            width: 60px;
+            margin-left: 10px;
+        }
+
+        /* Style pour les options dans les menus déroulants */
+        option {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 5px;
+        }
+
+        /* Style pour mettre en évidence les sections actives */
+        .section:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Améliorations pour les états de focus */
+        *:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 168, 255, 0.2);
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            input, select, button {
+                font-size: 16px;
+            }
+            
+            .btn-supprimer {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Ma Liste de Tâches</h1>
-        <div class="input-container">
-            <input type="text" id="newNote" placeholder="Ajouter une nouvelle tâche...">
-            <button id="addNote">+</button>
+        <h1>Covoiturage U15</h1>
+
+        <div class="section">
+            <h2>Date du covoiturage</h2>
+            <input type="date" id="dateCovoiturage">
         </div>
-        <ul id="noteList"></ul>
+
+        <div class="section">
+            <h2>Ajouter un joueur</h2>
+            <input type="text" id="nomJoueur" placeholder="Nom du joueur">
+            <button onclick="ajouterJoueur()">Ajouter</button>
+            <ul id="listeJoueurs"></ul>
+        </div>
+
+        <div class="section">
+    <h2>Ajouter un conducteur</h2>
+    <input type="text" id="nomConducteur" placeholder="Nom du conducteur">
+    <select id="trajet">
+        <option value="aller">Aller</option>
+        <option value="retour">Retour</option>
+        <option value="allerRetour">Aller-Retour</option>
+    </select>
+    <div class="places-container">
+        <input type="number" id="nombrePlaces" class="nombre-places" min="1" max="8" value="4">
+        <label for="nombrePlaces">nombre de places disponible dans le véhicule</label>
+    </div>
+    <button onclick="ajouterConducteur()">Ajouter</button>
+    <ul id="listeConducteurs"></ul>
+</div>
+
+        <div class="section">
+            <h2>Assigner les joueurs aux voitures</h2>
+            <select id="selectConducteur"></select>
+            <select id="selectJoueur"></select>
+            <button onclick="assignerJoueur()">Assigner</button>
+        </div>
+
+        <div class="section">
+            <h2>Assignations actuelles</h2>
+            <div id="assignations"></div>
+        </div>
     </div>
 
     <script>
-        // Configuration Firebase (à remplacer par vos propres détails de configuration)
         const firebaseConfig = {
-            apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
+           apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
   authDomain: "ma-liste-de-taches.firebaseapp.com",
   databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
   projectId: "ma-liste-de-taches",
   storageBucket: "ma-liste-de-taches.appspot.com",
   messagingSenderId: "614607808736",
   appId: "1:614607808736:web:d4490906c783cb14040885"
+
         };
 
-        // Initialiser Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const notesRef = database.ref('notes');
 
-        function renderNote(key, note) {
+        const covoiturageRef = database.ref('covoiturage');
+
+        function ajouterJoueur() {
+            const nom = document.getElementById('nomJoueur').value;
+            if (nom) {
+                covoiturageRef.child('joueurs').push({
+                    nom: nom,
+                    assigneAller: false,
+                    assigneRetour: false
+                });
+                document.getElementById('nomJoueur').value = '';
+            }
+        }
+
+        function supprimerJoueur(key) {
+            covoiturageRef.child('joueurs').child(key).remove();
+        }
+
+       function ajouterConducteur() {
+    const nom = document.getElementById('nomConducteur').value;
+    const trajet = document.getElementById('trajet').value;
+    const nombrePlaces = parseInt(document.getElementById('nombrePlaces').value, 10);
+    if (nom && nombrePlaces > 0) {
+        covoiturageRef.child('conducteurs').push({
+            nom: nom,
+            trajet: trajet,
+            nombrePlaces: nombrePlaces,
+            passagers: {},
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        document.getElementById('nomConducteur').value = '';
+        document.getElementById('nombrePlaces').value = '4'; // Réinitialiser à la valeur par défaut
+    }
+}
+
+        function supprimerConducteur(key) {
+            covoiturageRef.child('conducteurs').child(key).remove();
+        }
+
+        function assignerJoueur() {
+            const selectConducteur = document.getElementById('selectConducteur');
+            const selectJoueur = document.getElementById('selectJoueur');
+            const conducteurKey = selectConducteur.value;
+            const joueurKey = selectJoueur.value;
+            
+            if (conducteurKey && joueurKey) {
+                covoiturageRef.child('conducteurs').child(conducteurKey).once('value', (snapshot) => {
+                    const conducteur = snapshot.val();
+                    covoiturageRef.child('joueurs').child(joueurKey).once('value', (snapshot) => {
+                        const joueur = snapshot.val();
+                        if (conducteur.trajet === 'aller' && !joueur.assigneAller) {
+                            covoiturageRef.child('conducteurs').child(conducteurKey).child('passagers').child(joueurKey).set(true);
+                            covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(true);
+                        } else if (conducteur.trajet === 'retour' && !joueur.assigneRetour) {
+                            covoiturageRef.child('conducteurs').child(conducteurKey).child('passagers').child(joueurKey).set(true);
+                            covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(true);
+                        } else if (conducteur.trajet === 'allerRetour' && !joueur.assigneAller && !joueur.assigneRetour) {
+                            covoiturageRef.child('conducteurs').child(conducteurKey).child('passagers').child(joueurKey).set(true);
+                            covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(true);
+                            covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(true);
+                        } else {
+                            alert("Ce joueur est déjà assigné pour ce trajet.");
+                            return; // Sortir de la fonction si l'assignation n'est pas possible
+                        }
+                        // Réinitialiser seulement la sélection du joueur
+                        selectJoueur.selectedIndex = 0;
+                        // Mettre à jour la liste des joueurs disponibles
+                        updateJoueursList(conducteurKey);
+                    });
+                });
+            }
+        }
+        function updateJoueursList(conducteurKey) {
+            covoiturageRef.child('conducteurs').child(conducteurKey).once('value', (conducteurSnapshot) => {
+                const conducteur = conducteurSnapshot.val();
+                covoiturageRef.child('joueurs').once('value', (joueursSnapshot) => {
+                    const joueurs = joueursSnapshot.val();
+                    const selectJoueur = document.getElementById('selectJoueur');
+                    selectJoueur.innerHTML = '<option value="">Sélectionnez un joueur</option>';
+                    
+                    for (const [key, joueur] of Object.entries(joueurs)) {
+                        if ((conducteur.trajet === 'aller' && !joueur.assigneAller) ||
+                            (conducteur.trajet === 'retour' && !joueur.assigneRetour) ||
+                            (conducteur.trajet === 'allerRetour' && (!joueur.assigneAller || !joueur.assigneRetour))) {
+                            const option = document.createElement('option');
+                            option.value = key;
+                            option.textContent = joueur.nom;
+                            selectJoueur.appendChild(option);
+                        }
+                    }
+                });
+            });
+        }
+
+        function supprimerAssignation(conducteurKey, joueurKey) {
+            covoiturageRef.child('conducteurs').child(conducteurKey).child('passagers').child(joueurKey).remove();
+            covoiturageRef.child('joueurs').child(joueurKey).once('value', (snapshot) => {
+                const joueur = snapshot.val();
+                const updates = {};
+                if (joueur.assigneAller) updates['assigneAller'] = false;
+                if (joueur.assigneRetour) updates['assigneRetour'] = false;
+                covoiturageRef.child('joueurs').child(joueurKey).update(updates);
+            });
+        }
+
+        covoiturageRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            
+            const listeJoueurs = document.getElementById('listeJoueurs');
+listeJoueurs.innerHTML = '';
+for (const key in data.joueurs) {
+    const joueur = data.joueurs[key];
+    const li = document.createElement('li');
+    
+    // Créer le conteneur pour les informations du joueur
+    const joueurInfo = document.createElement('div');
+    joueurInfo.className = 'joueur-info';
+    
+    // Nom du joueur
+    const nomSpan = document.createElement('span');
+    nomSpan.textContent = joueur.nom;
+    joueurInfo.appendChild(nomSpan);
+    
+    // Badges de statut
+    const statusBadges = document.createElement('div');
+    statusBadges.className = 'status-badges';
+    
+    // Badge Aller
+    const badgeAller = document.createElement('span');
+    badgeAller.className = `badge ${joueur.assigneAller ? 'badge-aller' : 'badge-inactive'}`;
+    badgeAller.textContent = 'Aller';
+    statusBadges.appendChild(badgeAller);
+    
+    // Badge Retour
+    const badgeRetour = document.createElement('span');
+    badgeRetour.className = `badge ${joueur.assigneRetour ? 'badge-retour' : 'badge-inactive'}`;
+    badgeRetour.textContent = 'Retour';
+    statusBadges.appendChild(badgeRetour);
+    
+    joueurInfo.appendChild(statusBadges);
+    
+    // Bouton supprimer
+    const btnSupprimer = document.createElement('button');
+    btnSupprimer.textContent = 'Supprimer';
+    btnSupprimer.className = 'btn-supprimer';
+    btnSupprimer.onclick = () => supprimerJoueur(key);
+    
+    li.appendChild(joueurInfo);
+    li.appendChild(btnSupprimer);
+    listeJoueurs.appendChild(li);
+}
+
+            const selectConducteur = document.getElementById('selectConducteur');
+            const selectJoueur = document.getElementById('selectJoueur');
+            const selectedConducteurKey = selectConducteur.value; // Sauvegarder la sélection actuelle
+            selectConducteur.innerHTML = '<option value="">Sélectionnez un conducteur</option>';
+            selectJoueur.innerHTML = '<option value="">Sélectionnez un joueur</option>';
+            
+            const conducteursSorted = Object.entries(data.conducteurs || {}).sort((a, b) => a[1].timestamp - b[1].timestamp);
+            
+            for (const [key, conducteur] of conducteursSorted) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = `${conducteur.nom} (${conducteur.trajet})`;
+                selectConducteur.appendChild(option);
+            }
+
+            // Restaurer la sélection du conducteur si elle existait
+            if (selectedConducteurKey) {
+                selectConducteur.value = selectedConducteurKey;
+                updateJoueursList(selectedConducteurKey);
+            }
+
+            // Ajouter un écouteur d'événements pour mettre à jour la liste des joueurs quand le conducteur change
+            selectConducteur.addEventListener('change', (e) => {
+                updateJoueursList(e.target.value);
+            });
+            for (const key in data.joueurs) {
+                const joueur = data.joueurs[key];
+                if (!joueur.assigneAller || !joueur.assigneRetour) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = joueur.nom;
+                    selectJoueur.appendChild(option);
+                }
+            }
+
+            const assignationsDiv = document.getElementById('assignations');
+assignationsDiv.innerHTML = '';
+for (const key in data.conducteurs) {
+    const conducteur = data.conducteurs[key];
+    const assignation = document.createElement('div');
+    assignation.className = 'assignation';
+    
+    // Calculer le nombre de places utilisées et restantes
+    const nombrePassagers = Object.keys(conducteur.passagers || {}).length;
+    const nombrePlacesRestantes = conducteur.nombrePlaces - nombrePassagers;
+    
+    // Créer l'en-tête avec le nom du conducteur et les places
+    const header = document.createElement('h3');
+    header.textContent = `${conducteur.nom} (${conducteur.trajet}) - Places : ${nombrePassagers}/${conducteur.nombrePlaces} (${nombrePlacesRestantes} disponible${nombrePlacesRestantes > 1 ? 's' : ''})`;
+    header.style.color = nombrePlacesRestantes > 0 ? 'var(--secondary-color)' : 'var(--danger-color)';
+    assignation.appendChild(header);
+
+    // Liste des passagers
+    const ul = document.createElement('ul');
+    for (const joueurKey in conducteur.passagers) {
+        if (data.joueurs[joueurKey]) {  // Vérifier si le joueur existe toujours
             const li = document.createElement('li');
-            li.setAttribute('data-key', key);
-            li.innerHTML = `
-                <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote('${key}', ${note.completed})">
-                <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
-                <button class="delete" onclick="deleteNote('${key}')">×</button>
-            `;
-            return li;
+            li.textContent = data.joueurs[joueurKey].nom;
+            ul.appendChild(li);
         }
-
-        function addNote() {
-            const newNoteInput = document.getElementById('newNote');
-            const noteText = newNoteInput.value.trim();
-            if (noteText !== '') {
-                notesRef.push({ text: noteText, completed: false });
-                newNoteInput.value = '';
-            }
-        }
-
-        function toggleNote(key, completed) {
-            notesRef.child(key).update({ completed: !completed });
-        }
-
-        function deleteNote(key) {
-            console.log('Deleting note with key:', key);
-            notesRef.child(key).remove()
-                .then(() => console.log('Note successfully deleted'))
-                .catch(error => console.error('Error deleting note:', error));
-        }
-
-        // Écouter les changements dans la base de données
-        notesRef.on('child_added', snapshot => {
-            console.log('Note added:', snapshot.key);
-            const noteList = document.getElementById('noteList');
-            noteList.appendChild(renderNote(snapshot.key, snapshot.val()));
+    }
+    assignation.appendChild(ul);
+    assignationsDiv.appendChild(assignation);
+}
         });
 
-        notesRef.on('child_changed', snapshot => {
-            console.log('Note changed:', snapshot.key);
-            const liToUpdate = document.querySelector(`li[data-key="${snapshot.key}"]`);
-            if (liToUpdate) {
-                liToUpdate.parentNode.replaceChild(renderNote(snapshot.key, snapshot.val()), liToUpdate);
-            }
+        document.getElementById('dateCovoiturage').addEventListener('change', (e) => {
+            covoiturageRef.child('date').set(e.target.value);
         });
 
-        notesRef.on('child_removed', snapshot => {
-            console.log('Note removed:', snapshot.key);
-            const liToRemove = document.querySelector(`li[data-key="${snapshot.key}"]`);
-            if (liToRemove) {
-                liToRemove.remove();
-            }
-        });
-
-        document.getElementById('addNote').addEventListener('click', addNote);
-        document.getElementById('newNote').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') addNote();
+        covoiturageRef.child('date').on('value', (snapshot) => {
+            document.getElementById('dateCovoiturage').value = snapshot.val() || '';
         });
     </script>
 </body>
