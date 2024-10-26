@@ -239,7 +239,34 @@
             input, select, button {
                 font-size: 16px;
             }
-            
+            .liste-petite {
+    font-size: 0.8em;
+    margin-top: 10px;
+}
+
+.liste-petite li {
+    padding: 5px 8px;
+    margin-bottom: 5px;
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.joueur-statut {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.indicateur-covoiturage {
+    font-size: 0.9em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.non-covoiturage {
+    background-color: var(--text-muted);
+}
             .btn-supprimer {
                 padding: 8px 12px;
                 font-size: 14px;
@@ -282,7 +309,14 @@
         </div>
     </div>
 </div>
-
+        <div class="section">
+    <h2>Liste complète des joueurs</h2>
+    <div class="liste-complete">
+        <input type="text" id="nomJoueurComplet" placeholder="Nom du joueur">
+        <button onclick="ajouterJoueurComplet()">Ajouter à la liste complète</button>
+        <ul id="listeJoueursComplets" class="liste-petite"></ul>
+    </div>
+            
         <div class="section">
             <h2>Ajouter un joueur</h2>
             <input type="text" id="nomJoueur" placeholder="Nom du joueur">
@@ -417,7 +451,63 @@ covoiturageRef.child('matchInfo').on('value', (snapshot) => {
                 });
             }
         }
+        // Fonction pour ajouter un joueur à la liste complète
+function ajouterJoueurComplet() {
+    const nom = document.getElementById('nomJoueurComplet').value;
+    if (nom) {
+        covoiturageRef.child('joueursComplets').push({
+            nom: nom,
+            utiliseCovoiturage: false
+        });
+        document.getElementById('nomJoueurComplet').value = '';
+    }
+}
 
+// Dans la fonction covoiturageRef.on('value', ...), ajoutez ceci après la mise à jour des assignations :
+// Mettre à jour la liste complète des joueurs
+const listeJoueursComplets = document.getElementById('listeJoueursComplets');
+listeJoueursComplets.innerHTML = '';
+
+// Créer un ensemble des joueurs qui utilisent le covoiturage
+const joueursCovoiturage = new Set();
+if (data.joueurs) {
+    Object.keys(data.joueurs).forEach(key => {
+        joueursCovoiturage.add(data.joueurs[key].nom.toLowerCase());
+    });
+}
+
+// Afficher tous les joueurs
+if (data.joueursComplets) {
+    Object.entries(data.joueursComplets).forEach(([key, joueur]) => {
+        const li = document.createElement('li');
+        const joueurStatut = document.createElement('div');
+        joueurStatut.className = 'joueur-statut';
+
+        const nomSpan = document.createElement('span');
+        nomSpan.textContent = joueur.nom;
+        joueurStatut.appendChild(nomSpan);
+
+        const utiliseCovoiturage = joueursCovoiturage.has(joueur.nom.toLowerCase());
+        
+        const indicateur = document.createElement('span');
+        indicateur.className = `indicateur-covoiturage ${utiliseCovoiturage ? '' : 'non-covoiturage'}`;
+        indicateur.textContent = utiliseCovoiturage ? 'Covoiturage' : 'Sans covoiturage';
+        joueurStatut.appendChild(indicateur);
+
+        const btnSupprimer = document.createElement('button');
+        btnSupprimer.textContent = 'Supprimer';
+        btnSupprimer.className = 'btn-supprimer';
+        btnSupprimer.onclick = () => {
+            if(confirm("Êtes-vous sûr de vouloir supprimer ce joueur de la liste complète ?")) {
+                covoiturageRef.child('joueursComplets').child(key).remove();
+            }
+        };
+
+        li.appendChild(joueurStatut);
+        li.appendChild(btnSupprimer);
+        listeJoueursComplets.appendChild(li);
+    });
+}
         function assignerJoueur() {
             const conducteurKey = document.getElementById('selectConducteur').value;
             const joueurKey = document.getElementById('selectJoueur').value;
