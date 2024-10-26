@@ -316,35 +316,36 @@
         }
 </script>
  function supprimerConducteur(key) {
-            if(confirm("Êtes-vous sûr de vouloir supprimer ce conducteur ?\nCela libèrera aussi tous ses passagers assignés.")) {
-                covoiturageRef.child('conducteurs').child(key).once('value', (snapshot) => {
-                    const conducteur = snapshot.val();
-                    if (conducteur && conducteur.passagers) {
-                        Object.keys(conducteur.passagers).forEach(joueurKey => {
-                            covoiturageRef.child('joueurs').child(joueurKey).once('value', (snapshot) => {
-                                const joueur = snapshot.val();
-                                if (joueur) {
-                                    if (conducteur.trajet === 'aller') {
-                                        covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(false);
-                                    } else if (conducteur.trajet === 'retour') {
-                                        covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(false);
-                                    } else if (conducteur.trajet === 'allerRetour') {
-                                        covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(false);
-                                        covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(false);
-                                    }
-                                }
-                            });
-                        });
-                    }
-                    covoiturageRef.child('conducteurs').child(key).remove().then(() => {
-                        console.log("Conducteur supprimé avec succès");
-                    }).catch(error => {
-                        console.error("Erreur lors de la suppression du conducteur:", error);
-                        alert("Erreur lors de la suppression du conducteur");
+    if(confirm("Êtes-vous sûr de vouloir supprimer ce conducteur ?\nCela libèrera aussi tous ses passagers assignés.")) {
+        covoiturageRef.child('conducteurs').child(key).once('value', (snapshot) => {
+            const conducteur = snapshot.val();
+            if (conducteur && conducteur.passagers) {
+                Object.keys(conducteur.passagers).forEach(joueurKey => {
+                    covoiturageRef.child('joueurs').child(joueurKey).once('value', (snapshot) => {
+                        const joueur = snapshot.val();
+                        if (joueur) {
+                            if (conducteur.trajet === 'aller') {
+                                covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(false);
+                            } else if (conducteur.trajet === 'retour') {
+                                covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(false);
+                            } else if (conducteur.trajet === 'allerRetour') {
+                                covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(false);
+                                covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(false);
+                            }
+                        }
                     });
                 });
             }
-        }
+            // Supprimer le conducteur après avoir libéré les passagers
+            covoiturageRef.child('conducteurs').child(key).remove().then(() => {
+                console.log("Conducteur supprimé avec succès");
+            }).catch(error => {
+                console.error("Erreur lors de la suppression du conducteur:", error);
+                alert("Erreur lors de la suppression du conducteur");
+            });
+        });
+    }
+}
 
         function assignerJoueur() {
             const conducteurKey = document.getElementById('selectConducteur').value;
