@@ -265,12 +265,12 @@
         // Configuration Firebase (à remplacer par vos propres informations)
         const firebaseConfig = {
             apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
-          authDomain: "ma-liste-de-taches.firebaseapp.com",
-          databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
-          projectId: "ma-liste-de-taches",
-          storageBucket: "ma-liste-de-taches.appspot.com",
-          messagingSenderId: "614607808736",
-          appId: "1:614607808736:web:d4490906c783cb14040885"
+  authDomain: "ma-liste-de-taches.firebaseapp.com",
+  databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
+  projectId: "ma-liste-de-taches",
+  storageBucket: "ma-liste-de-taches.appspot.com",
+  messagingSenderId: "614607808736",
+  appId: "1:614607808736:web:d4490906c783cb14040885"
         };
 
         // Initialiser Firebase
@@ -314,38 +314,38 @@
                 document.getElementById('nombrePlaces').value = '4';
             }
         }
+
 </script>
- function supprimerConducteur(key) {
-    if(confirm("Êtes-vous sûr de vouloir supprimer ce conducteur ?\nCela libèrera aussi tous ses passagers assignés.")) {
-        covoiturageRef.child('conducteurs').child(key).once('value', (snapshot) => {
-            const conducteur = snapshot.val();
-            if (conducteur && conducteur.passagers) {
-                Object.keys(conducteur.passagers).forEach(joueurKey => {
-                    covoiturageRef.child('joueurs').child(joueurKey).once('value', (snapshot) => {
-                        const joueur = snapshot.val();
-                        if (joueur) {
-                            if (conducteur.trajet === 'aller') {
-                                covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(false);
-                            } else if (conducteur.trajet === 'retour') {
-                                covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(false);
-                            } else if (conducteur.trajet === 'allerRetour') {
-                                covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(false);
-                                covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(false);
-                            }
-                        }
+function supprimerConducteur(key) {
+            if(confirm("Êtes-vous sûr de vouloir supprimer ce conducteur ?\nCela libèrera aussi tous ses passagers assignés.")) {
+                covoiturageRef.child('conducteurs').child(key).once('value', (snapshot) => {
+                    const conducteur = snapshot.val();
+                    if (conducteur && conducteur.passagers) {
+                        Object.keys(conducteur.passagers).forEach(joueurKey => {
+                            covoiturageRef.child('joueurs').child(joueurKey).once('value', (snapshot) => {
+                                const joueur = snapshot.val();
+                                if (joueur) {
+                                    if (conducteur.trajet === 'aller') {
+                                        covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(false);
+                                    } else if (conducteur.trajet === 'retour') {
+                                        covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(false);
+                                    } else if (conducteur.trajet === 'allerRetour') {
+                                        covoiturageRef.child('joueurs').child(joueurKey).child('assigneAller').set(false);
+                                        covoiturageRef.child('joueurs').child(joueurKey).child('assigneRetour').set(false);
+                                    }
+                                }
+                            });
+                        });
+                    }
+                    covoiturageRef.child('conducteurs').child(key).remove().then(() => {
+                        console.log("Conducteur supprimé avec succès");
+                    }).catch(error => {
+                        console.error("Erreur lors de la suppression du conducteur:", error);
+                        alert("Erreur lors de la suppression du conducteur");
                     });
                 });
             }
-            // Supprimer le conducteur après avoir libéré les passagers
-            covoiturageRef.child('conducteurs').child(key).remove().then(() => {
-                console.log("Conducteur supprimé avec succès");
-            }).catch(error => {
-                console.error("Erreur lors de la suppression du conducteur:", error);
-                alert("Erreur lors de la suppression du conducteur");
-            });
-        });
-    }
-}
+        }
 
         function assignerJoueur() {
             const conducteurKey = document.getElementById('selectConducteur').value;
@@ -512,6 +512,7 @@
             mettreAJourListesDeroulantes();
         });
 
+        // Gestion de la date
         document.getElementById('dateCovoiturage').addEventListener('change', (e) => {
             covoiturageRef.child('date').set(e.target.value);
         });
