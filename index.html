@@ -220,54 +220,6 @@
             .btn-supprimer {
                 padding: 8px 12px;
                 font-size: 14px;
-                .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 15px;
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 15px;
-}
-
-.full-width {
-    grid-column: 1 / -1;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.input-group label {
-    color: var(--text-color);
-    font-size: 0.9em;
-}
-
-@media (max-width: 600px) {
-    .info-grid {
-        grid-template-columns: 1fr;                    
-}
-
-.full-width {
-    grid-column: 1 / -1;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.input-group label {
-    color: var(--text-color);
-    font-size: 0.9em;
-}
-
-@media (max-width: 600px) {
-    .info-grid {
-        grid-template-columns: 1fr;
             }
         }
     </style>
@@ -276,37 +228,31 @@
     <div class="container">
         <h1>Covoiturage U15</h1>
 
-       <div class="section">
-    <h2>Informations du match</h2>
-    <div class="match-info">
-        <div class="info-grid">
-            <div class="input-group">
-                <label for="dateCovoiturage">Date du match</label>
-                <input type="date" id="dateCovoiturage">
-            </div>
-            <div class="input-group">
-                <label for="heureMatch">Heure du match</label>
-                <input type="time" id="heureMatch">
-            </div>
-            <div class="input-group">
-                <label for="heureEntrainement">Heure de l'entraînement</label>
-                <input type="time" id="heureEntrainement">
-            </div>
-            <div class="input-group full-width">
-                <label for="lieuMatch">Lieu du match</label>
-                <input type="text" id="lieuMatch" placeholder="Adresse du match">
-            </div>
-            <div class="input-group">
-                <label for="heureRdv">Heure du rendez-vous</label>
-                <input type="time" id="heureRdv">
-            </div>
-            <div class="input-group full-width">
-                <label for="lieuRdv">Lieu du rendez-vous</label>
-                <input type="text" id="lieuRdv" placeholder="Point de rendez-vous">
+        <div class="section">
+            <h2>Informations du match</h2>
+            <div class="match-info">
+                <div class="input-group">
+                    <label for="dateCovoiturage">Date du match</label>
+                    <input type="date" id="dateCovoiturage">
+                </div>
+                <div class="input-group">
+                    <label for="heureMatch">Heure du match</label>
+                    <input type="time" id="heureMatch">
+                </div>
+                <div class="input-group">
+                    <label for="lieuMatch">Lieu du match</label>
+                    <input type="text" id="lieuMatch" placeholder="Adresse du match">
+                </div>
+                <div class="input-group">
+                    <label for="heureRdv">Heure du rendez-vous</label>
+                    <input type="time" id="heureRdv">
+                </div>
+                <div class="input-group">
+                    <label for="lieuRdv">Lieu du rendez-vous</label>
+                    <input type="text" id="lieuRdv" placeholder="Point de rendez-vous">
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
         <div class="section">
             <h2>Ajouter un joueur</h2>
@@ -346,7 +292,7 @@
     <script>
         // Configuration Firebase (à remplacer par vos propres informations)
         const firebaseConfig = {
-            apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
+           apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
   authDomain: "ma-liste-de-taches.firebaseapp.com",
   databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
   projectId: "ma-liste-de-taches",
@@ -361,27 +307,11 @@
         const covoiturageRef = database.ref('covoiturage');
 
         // Gestion des informations du match
-        ['dateCovoiturage', 'heureMatch', 'heureEntrainement', 'lieuMatch', 'heureRdv', 'lieuRdv'].forEach(id => {
-    document.getElementById(id).addEventListener('change', (e) => {
-        covoiturageRef.child('matchInfo').child(id).set(e.target.value);
-    });
-});
-
-// Et dans la partie qui charge les informations
-covoiturageRef.child('matchInfo').on('value', (snapshot) => {
-    const matchInfo = snapshot.val() || {};
-    ['dateCovoiturage', 'heureMatch', 'heureEntrainement', 'lieuMatch', 'heureRdv', 'lieuRdv'].forEach(id => {
-        document.getElementById(id).value = matchInfo[id] || '';
-    });
-});
-
-// Et dans la partie qui charge les informations
-covoiturageRef.child('matchInfo').on('value', (snapshot) => {
-    const matchInfo = snapshot.val() || {};
-    ['dateCovoiturage', 'heureMatch', 'heureEntrainement', 'lieuMatch', 'heureRdv', 'lieuRdv'].forEach(id => {
-        document.getElementById(id).value = matchInfo[id] || '';
-    });
-});
+        ['dateCovoiturage', 'heureMatch', 'lieuMatch', 'heureRdv', 'lieuRdv'].forEach(id => {
+            document.getElementById(id).addEventListener('change', (e) => {
+                covoiturageRef.child('matchInfo').child(id).set(e.target.value);
+            });
+        });
 
         // Charger les informations du match
         covoiturageRef.child('matchInfo').on('value', (snapshot) => {
