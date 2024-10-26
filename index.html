@@ -224,6 +224,30 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 15px;
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-group label {
+    color: var(--text-color);
+    font-size: 0.9em;
+}
+
+@media (max-width: 600px) {
+    .info-grid {
+        grid-template-columns: 1fr;                    
 }
 
 .full-width {
@@ -340,6 +364,14 @@
         ['dateCovoiturage', 'heureMatch', 'heureEntrainement', 'lieuMatch', 'heureRdv', 'lieuRdv'].forEach(id => {
     document.getElementById(id).addEventListener('change', (e) => {
         covoiturageRef.child('matchInfo').child(id).set(e.target.value);
+    });
+});
+
+// Et dans la partie qui charge les informations
+covoiturageRef.child('matchInfo').on('value', (snapshot) => {
+    const matchInfo = snapshot.val() || {};
+    ['dateCovoiturage', 'heureMatch', 'heureEntrainement', 'lieuMatch', 'heureRdv', 'lieuRdv'].forEach(id => {
+        document.getElementById(id).value = matchInfo[id] || '';
     });
 });
 
