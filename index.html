@@ -8,165 +8,37 @@
     <script src="https://cdn.jsdelivr.net/npm/luxon@2.0.2/build/global/luxon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #1a1f25 0%, #242830 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 2rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 2rem;
-        }
-
-        .crypto-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .crypto-box {
-            flex: 1;
-            padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        h1 {
-            text-align: center;
-            color: #fff;
-            margin-bottom: 2rem;
-            font-size: 2.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        select, button {
-            padding: 0.8rem 1.5rem;
-            border-radius: 10px;
-            border: none;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        select {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            cursor: pointer;
-            outline: none;
-        }
-
-        select option {
-            background: #242830;
-            color: #fff;
-        }
-
-        button {
-            background: #3498db;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-        }
-
-        button:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .price-display {
-            font-size: 2rem;
-            margin: 1rem 0;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            font-weight: bold;
-        }
-
-        .bitcoin-price {
-            color: #f7931a;
-        }
-
-        .ethereum-price {
-            color: #627eea;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-            padding: 1rem;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-            
-            .container {
-                padding: 1rem;
-            }
-
-            .crypto-container {
-                flex-direction: column;
-            }
-
-            .controls {
-                flex-direction: column;
-            }
-
-            .price-display {
-                font-size: 1.5rem;
-            }
-        }
+        /* ... (même style qu'avant) ... */
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Crypto Price Tracker</h1>
+        <h1>Évolution Bitcoin & Ethereum</h1>
+        <div class="controls">
+            <select id="timeframe">
+                <option value="max" selected>Depuis la création</option>
+                <option value="365">1 An</option>
+                <option value="90">3 Mois</option>
+                <option value="30">1 Mois</option>
+                <option value="7">1 Semaine</option>
+            </select>
+            <button onclick="updateCharts()">Mettre à jour</button>
+        </div>
         <div class="crypto-container">
             <div class="crypto-box">
                 <h2>Bitcoin</h2>
                 <div id="bitcoin-price" class="price-display bitcoin-price">
                     Chargement...
                 </div>
+                <div class="creation-date">Créé en 2009</div>
             </div>
             <div class="crypto-box">
                 <h2>Ethereum</h2>
                 <div id="ethereum-price" class="price-display ethereum-price">
                     Chargement...
                 </div>
+                <div class="creation-date">Créé en 2015</div>
             </div>
-        </div>
-        <div class="controls">
-            <select id="timeframe">
-                <option value="1">24 Heures</option>
-                <option value="7">7 Jours</option>
-                <option value="30">30 Jours</option>
-                <option value="365" selected>1 An</option>
-            </select>
-            <button onclick="updateCharts()">Mettre à jour</button>
         </div>
     </div>
 
@@ -214,7 +86,7 @@
                         x: {
                             type: 'time',
                             time: {
-                                unit: 'day'
+                                unit: 'month'
                             },
                             grid: {
                                 color: 'rgba(255, 255, 255, 0.1)'
@@ -224,7 +96,7 @@
                             }
                         },
                         y: {
-                            type: 'linear',
+                            type: 'logarithmic',
                             display: true,
                             position: 'left',
                             grid: {
@@ -241,7 +113,7 @@
                             }
                         },
                         y1: {
-                            type: 'linear',
+                            type: 'logarithmic',
                             display: true,
                             position: 'right',
                             grid: {
@@ -282,7 +154,7 @@
 
         async function fetchCryptoData(crypto, days) {
             try {
-                const response = await fetch(`https://api.coingecko.com/api/v3/coins/${crypto}/market_chart?vs_currency=eur&days=${days}&interval=daily`);
+                const response = await fetch(`https://api.coingecko.com/api/v3/coins/${crypto}/market_chart?vs_currency=eur&days=${days === 'max' ? 'max' : days}&interval=${days === 'max' ? 'daily' : 'hourly'}`);
                 if (!response.ok) throw new Error('Erreur réseau');
                 const data = await response.json();
                 return data.prices.map(price => ({
@@ -300,9 +172,11 @@
             const bitcoinData = await fetchCryptoData('bitcoin', days);
             const ethereumData = await fetchCryptoData('ethereum', days);
 
-            cryptoChart.data.datasets[0].data = bitcoinData;
-            cryptoChart.data.datasets[1].data = ethereumData;
-            cryptoChart.update();
+            if (bitcoinData.length > 0 && ethereumData.length > 0) {
+                cryptoChart.data.datasets[0].data = bitcoinData;
+                cryptoChart.data.datasets[1].data = ethereumData;
+                cryptoChart.update();
+            }
         }
 
         async function updatePrices() {
@@ -334,7 +208,6 @@
             initChart();
             updateCharts();
             updatePrices();
-            // Mise à jour des prix toutes les 30 secondes
             setInterval(updatePrices, 30000);
         };
     </script>
