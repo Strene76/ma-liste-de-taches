@@ -220,15 +220,7 @@
             input, select, button {
                 font-size: 16px;
             }
-            
-            .btn-supprimer {
-                padding: 8px 12px;
-                font-size: 14px;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-                .small-section {
+            .small-section {
     font-size: 0.85em;
     margin-bottom: 20px;
 }
@@ -272,6 +264,13 @@
 .status-covoiturage {
     background-color: var(--primary-color);
 }
+            .btn-supprimer {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -307,11 +306,7 @@
                     <div class="input-group full-width">
                         <label for="lieuRdv">Lieu du rendez-vous</label>
                         <input type="text" id="lieuRdv" placeholder="Point de rendez-vous">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="section small-section">
+                        <div class="section small-section">
     <h2>Liste complète des joueurs</h2>
     <div class="players-grid">
         <div class="players-column">
@@ -321,9 +316,11 @@
         <div class="players-column">
             <h3>Covoiturage</h3>
             <ul id="listeJoueursCovoiturage" class="small-list"></ul>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+
         <div class="section">
             <h2>Ajouter un joueur</h2>
             <input type="text" id="nomJoueur" placeholder="Nom du joueur">
@@ -527,12 +524,7 @@
     }
 
     covoiturageRef.on('value', (snapshot) => {
-    const data = snapshot.val() || {};
-    // ... (code existant) ...
-    
-    // Ajoutez cette ligne à la fin
-    mettreAJourListesJoueurs(data);
-});
+        const data = snapshot.val() || {};
         
         // Mettre à jour la liste des joueurs
         const listeJoueurs = document.getElementById('listeJoueurs');
@@ -598,34 +590,7 @@
             listeConducteurs.appendChild(li);
         }
 
-        // Mettre à jour les assignations
-        const assignationsDiv = document.getElementById('assignations');
-        assignationsDiv.innerHTML = '';
-        for (const key in data.conducteurs) {
-            const conducteur = data.conducteurs[key];
-            const assignation = document.createElement('div');
-            assignation.className = 'assignation';
-            
-            const nombrePassagers = Object.keys(conducteur.passagers || {}).length;
-            const header = document.createElement('h3');
-            header.textContent = `${conducteur.nom} (${conducteur.trajet}) - ${nombrePassagers}/${conducteur.nombrePlaces} places`;
-            assignation.appendChild(header);
-
-            const ul = document.createElement('ul');
-            for (const joueurKey in conducteur.passagers) {
-                if (data.joueurs && data.joueurs[joueurKey]) {
-                    const li = document.createElement('li');
-                    li.textContent = data.joueurs[joueurKey].nom;
-                    ul.appendChild(li);
-                }
-            }
-            assignation.appendChild(ul);
-            assignationsDiv.appendChild(assignation);
-        }
-
-        mettreAJourListesDeroulantes();
-    });
-    function mettreAJourListesJoueurs(data) {
+        function mettreAJourListesJoueurs(data) {
     const listeComplete = document.getElementById('listeJoueursComplet');
     const listeCovoiturage = document.getElementById('listeJoueursCovoiturage');
     
@@ -654,8 +619,34 @@
             ));
             listeCovoiturage.appendChild(liCovoiturage);
         }
-    }
-}
+        // Mettre à jour les assignations
+        const assignationsDiv = document.getElementById('assignations');
+        assignationsDiv.innerHTML = '';
+        for (const key in data.conducteurs) {
+            const conducteur = data.conducteurs[key];
+            const assignation = document.createElement('div');
+            assignation.className = 'assignation';
+            
+            const nombrePassagers = Object.keys(conducteur.passagers || {}).length;
+            const header = document.createElement('h3');
+            header.textContent = `${conducteur.nom} (${conducteur.trajet}) - ${nombrePassagers}/${conducteur.nombrePlaces} places`;
+            assignation.appendChild(header);
+
+            const ul = document.createElement('ul');
+            for (const joueurKey in conducteur.passagers) {
+                if (data.joueurs && data.joueurs[joueurKey]) {
+                    const li = document.createElement('li');
+                    li.textContent = data.joueurs[joueurKey].nom;
+                    ul.appendChild(li);
+                }
+            }
+            assignation.appendChild(ul);
+            assignationsDiv.appendChild(assignation);
+        }
+
+        mettreAJourListesDeroulantes();
+        mettreAJourListesJoueurs(data);
+    });
 </script>
 </body>
 </html>
