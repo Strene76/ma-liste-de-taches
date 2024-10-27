@@ -145,12 +145,12 @@
         <h1>Évolution Bitcoin & Ethereum</h1>
         <div class="controls">
             <select id="timeframe">
-                <option value="1">1 Mois</option>
-                <option value="3">3 Mois</option>
-                <option value="6">6 Mois</option>
-                <option value="12">1 An</option>
-                <option value="max" selected>Depuis la création</option>
-            </select>
+    <option value="1" selected>1 Mois</option>
+    <option value="3">3 Mois</option>
+    <option value="6">6 Mois</option>
+    <option value="12">1 An</option>
+    <option value="max">Depuis la création</option>
+</select>
             <button onclick="updateChart()">Actualiser</button>
         </div>
         <div class="crypto-container">
@@ -195,11 +195,12 @@
         }
 
         async function initChart() {
-            const ctx = document.getElementById('cryptoChart').getContext('2d');
-            const bitcoinData = await fetchData('BTC');
-            const ethereumData = await fetchData('ETH');
+        const ctx = document.getElementById('cryptoChart').getContext('2d');
+        // Récupérer les données pour 1 mois par défaut
+        const bitcoinData = await fetchData('BTC', '1');
+        const ethereumData = await fetchData('ETH', '1');
 
-            chart = new Chart(ctx, {
+        chart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     datasets: [{
