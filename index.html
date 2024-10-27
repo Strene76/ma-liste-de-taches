@@ -3,200 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Liste de Tâches Partagée</title>
+    <title>Bitcoin Price Tracker</title>
     <style>
-        /* Mode sombre */
-        body { 
-            font-family: Arial, sans-serif; 
-            background-color: #1a1a1a; 
-            color: #ffffff;
-            margin: 0; 
-            padding: 20px; 
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
-        .container { 
-            max-width: 500px; 
-            margin: 0 auto; 
-            background-color: #2d2d2d; 
-            padding: 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        h1 { 
-            text-align: center; 
-            color: #ffffff;
-            margin-bottom: 30px;
+        .price-display {
+            font-size: 2em;
+            text-align: center;
+            margin: 20px 0;
         }
-        .input-container { 
-            display: flex; 
-            margin-bottom: 20px; 
+        select, button {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
         }
-        #newNote { 
-            flex-grow: 1; 
-            padding: 12px; 
-            font-size: 16px; 
-            border: none; 
-            background-color: #404040; 
-            color: #ffffff;
-            border-radius: 4px 0 0 4px; 
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
-        #newNote::placeholder {
-            color: #aaaaaa;
-        }
-        #newNote:focus {
-            outline: none;
-            background-color: #4a4a4a;
-        }
-        #addNote { 
-            background-color: #4CAF50; 
-            color: white; 
-            border: none; 
-            padding: 12px 20px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            border-radius: 0 4px 4px 0;
-            transition: background-color 0.3s ease;
-        }
-        #addNote:hover {
-            background-color: #3d8b40;
-        }
-        ul { 
-            list-style-type: none; 
-            padding: 0; 
-        }
-        li { 
-            background-color: #404040; 
-            border: 1px solid #505050; 
-            margin-bottom: 10px; 
-            padding: 12px; 
-            border-radius: 4px; 
-            display: flex; 
-            align-items: center;
-            transition: transform 0.2s ease, background-color 0.2s ease;
-        }
-        li:hover {
-            background-color: #454545;
-            transform: translateX(5px);
-        }
-        .completed { 
-            text-decoration: line-through; 
-            color: #888888; 
-        }
-        .delete { 
-            background-color: #dc3545; 
-            color: white; 
-            border: none; 
-            padding: 8px 12px; 
-            margin-left: 10px; 
-            cursor: pointer; 
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-        }
-        .delete:hover {
-            background-color: #c82333;
-        }
-        input[type="checkbox"] {
-            margin-right: 10px;
-            width: 18px;
-            height: 18px;
-            accent-color: #4CAF50;
-        }
-        /* Animation pour les nouveaux éléments */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        li {
-            animation: fadeIn 0.3s ease;
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Ma Liste de Tâches</h1>
-        <div class="input-container">
-            <input type="text" id="newNote" placeholder="Ajouter une nouvelle tâche...">
-            <button id="addNote">+</button>
+        <h1>Bitcoin Price Tracker</h1>
+        <div class="inputs">
+            <select id="currency">
+                <option value="usd">USD</option>
+                <option value="eur">EUR</option>
+            </select>
+            <button onclick="checkPrice()">Vérifier le prix</button>
         </div>
-        <ul id="noteList"></ul>
+        <div id="price" class="price-display">
+            Prix actuel
+        </div>
     </div>
 
     <script>
-        // Configuration Firebase (à remplacer par vos propres détails de configuration)
-        const firebaseConfig = {
-            apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
-  authDomain: "ma-liste-de-taches.firebaseapp.com",
-  databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
-  projectId: "ma-liste-de-taches",
-  storageBucket: "ma-liste-de-taches.appspot.com",
-  messagingSenderId: "614607808736",
-  appId: "1:614607808736:web:d4490906c783cb14040885"
-        };
-
-        // Initialiser Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const notesRef = database.ref('notes');
-
-        function renderNote(key, note) {
-            const li = document.createElement('li');
-            li.setAttribute('data-key', key);
-            li.innerHTML = `
-                <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote('${key}', ${note.completed})">
-                <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
-                <button class="delete" onclick="deleteNote('${key}')">×</button>
-            `;
-            return li;
-        }
-
-        function addNote() {
-            const newNoteInput = document.getElementById('newNote');
-            const noteText = newNoteInput.value.trim();
-            if (noteText !== '') {
-                notesRef.push({ text: noteText, completed: false });
-                newNoteInput.value = '';
+        async function checkPrice() {
+            const currency = document.getElementById('currency').value;
+            try {
+                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${currency}`);
+                const data = await response.json();
+                const price = data.bitcoin[currency];
+                document.getElementById('price').innerHTML = 
+                    `Prix du Bitcoin: ${price.toLocaleString()} ${currency.toUpperCase()}`;
+            } catch (error) {
+                document.getElementById('price').innerHTML = 
+                    "Erreur lors de la récupération du prix";
             }
         }
 
-        function toggleNote(key, completed) {
-            notesRef.child(key).update({ completed: !completed });
-        }
-
-        function deleteNote(key) {
-            console.log('Deleting note with key:', key);
-            notesRef.child(key).remove()
-                .then(() => console.log('Note successfully deleted'))
-                .catch(error => console.error('Error deleting note:', error));
-        }
-
-        // Écouter les changements dans la base de données
-        notesRef.on('child_added', snapshot => {
-            console.log('Note added:', snapshot.key);
-            const noteList = document.getElementById('noteList');
-            noteList.appendChild(renderNote(snapshot.key, snapshot.val()));
-        });
-
-        notesRef.on('child_changed', snapshot => {
-            console.log('Note changed:', snapshot.key);
-            const liToUpdate = document.querySelector(`li[data-key="${snapshot.key}"]`);
-            if (liToUpdate) {
-                liToUpdate.parentNode.replaceChild(renderNote(snapshot.key, snapshot.val()), liToUpdate);
-            }
-        });
-
-        notesRef.on('child_removed', snapshot => {
-            console.log('Note removed:', snapshot.key);
-            const liToRemove = document.querySelector(`li[data-key="${snapshot.key}"]`);
-            if (liToRemove) {
-                liToRemove.remove();
-            }
-        });
-
-        document.getElementById('addNote').addEventListener('click', addNote);
-        document.getElementById('newNote').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') addNote();
-        });
+        // Mise à jour automatique toutes les 30 secondes
+        setInterval(checkPrice, 30000);
+        
+        // Première vérification au chargement
+        checkPrice();
     </script>
 </body>
 </html>
