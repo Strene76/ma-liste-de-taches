@@ -228,6 +228,50 @@
 
             .info-grid {
                 grid-template-columns: 1fr;
+                .small-section {
+    font-size: 0.85em;
+    margin-bottom: 20px;
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.players-column h3 {
+    color: var(--secondary-color);
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+.small-list {
+    font-size: 0.9em;
+    margin: 0;
+    padding: 0;
+}
+
+.small-list li {
+    padding: 5px 10px;
+    margin-bottom: 5px;
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.player-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-present {
+    background-color: var(--secondary-color);
+}
+
+.status-covoiturage {
+    background-color: var(--primary-color);
+}
             }
         }
     </style>
@@ -267,7 +311,19 @@
                 </div>
             </div>
         </div>
-
+        <div class="section small-section">
+    <h2>Liste complète des joueurs</h2>
+    <div class="players-grid">
+        <div class="players-column">
+            <h3>Participants</h3>
+            <ul id="listeJoueursComplet" class="small-list"></ul>
+        </div>
+        <div class="players-column">
+            <h3>Covoiturage</h3>
+            <ul id="listeJoueursCovoiturage" class="small-list"></ul>
+        </div>
+    </div>
+</div>
         <div class="section">
             <h2>Ajouter un joueur</h2>
             <input type="text" id="nomJoueur" placeholder="Nom du joueur">
@@ -471,7 +527,12 @@
     }
 
     covoiturageRef.on('value', (snapshot) => {
-        const data = snapshot.val() || {};
+    const data = snapshot.val() || {};
+    // ... (code existant) ...
+    
+    // Ajoutez cette ligne à la fin
+    mettreAJourListesJoueurs(data);
+});
         
         // Mettre à jour la liste des joueurs
         const listeJoueurs = document.getElementById('listeJoueurs');
@@ -564,6 +625,37 @@
 
         mettreAJourListesDeroulantes();
     });
+    function mettreAJourListesJoueurs(data) {
+    const listeComplete = document.getElementById('listeJoueursComplet');
+    const listeCovoiturage = document.getElementById('listeJoueursCovoiturage');
+    
+    listeComplete.innerHTML = '';
+    listeCovoiturage.innerHTML = '';
+
+    for (const key in data.joueurs) {
+        const joueur = data.joueurs[key];
+        
+        // Liste complète
+        const liComplete = document.createElement('li');
+        const statusDot = document.createElement('span');
+        statusDot.className = 'player-status status-present';
+        liComplete.appendChild(statusDot);
+        liComplete.appendChild(document.createTextNode(joueur.nom));
+        listeComplete.appendChild(liComplete);
+
+        // Liste covoiturage
+        if (joueur.assigneAller || joueur.assigneRetour) {
+            const liCovoiturage = document.createElement('li');
+            const statusDotCov = document.createElement('span');
+            statusDotCov.className = 'player-status status-covoiturage';
+            liCovoiturage.appendChild(statusDotCov);
+            liCovoiturage.appendChild(document.createTextNode(
+                `${joueur.nom} (${joueur.assigneAller ? 'A' : ''}${joueur.assigneRetour ? 'R' : ''})`
+            ));
+            listeCovoiturage.appendChild(liCovoiturage);
+        }
+    }
+}
 </script>
 </body>
 </html>
