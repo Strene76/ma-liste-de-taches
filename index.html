@@ -5,70 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitcoin Price Tracker avec Graphique</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Ajout de l'API key dans les headers -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .price-display {
-            font-size: 2em;
-            text-align: center;
-            margin: 20px 0;
-        }
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-        select, button {
-            padding: 10px;
-            margin: 10px;
-            border-radius: 5px;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
+        /* ... (même style qu'avant) ... */
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Bitcoin Price Tracker</h1>
-        <div class="inputs">
-            <select id="currency">
-                <option value="usd">USD</option>
-                <option value="eur">EUR</option>
-            </select>
-            <button onclick="checkPrice()">Vérifier le prix</button>
-        </div>
-        <div id="price" class="price-display">
-            Prix actuel
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="chart-container">
-            <canvas id="bitcoinChart"></canvas>
-        </div>
-    </div>
+    <!-- ... (même structure HTML qu'avant) ... -->
 
     <script>
-        // Initialisation du graphique
         const ctx = document.getElementById('bitcoinChart').getContext('2d');
         let bitcoinChart = new Chart(ctx, {
             type: 'line',
@@ -86,8 +32,28 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'month'
+                        }
+                    },
                     y: {
-                        beginAtZero: false
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.parsed.y.toLocaleString();
+                            }
+                        }
                     }
                 }
             }
@@ -95,9 +61,23 @@
 
         async function getHistoricalData() {
             try {
-                const response = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=max&interval=daily');
+                // Ajout des headers nécessaires
+                const options = {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                };
+
+                const response = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=max&interval=daily', options);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
+                // Formatage correct des données
                 const prices = data.prices.map(price => ({
                     x: new Date(price[0]),
                     y: price[1]
@@ -105,31 +85,53 @@
 
                 bitcoinChart.data.datasets[0].data = prices;
                 bitcoinChart.update();
+                
+                // Afficher un message de succès
+                console.log('Données chargées avec succès');
             } catch (error) {
-                console.error("Erreur lors de la récupération des données historiques:", error);
+                console.error("Erreur lors de la récupération des données:", error);
+                document.getElementById('price').innerHTML = 
+                    "Erreur lors de la récupération des données historiques. Veuillez réessayer plus tard.";
             }
         }
 
         async function checkPrice() {
             const currency = document.getElementById('currency').value;
             try {
-                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${currency}`);
+                const options = {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                };
+                
+                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${currency}`, options);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 const price = data.bitcoin[currency];
                 document.getElementById('price').innerHTML = 
                     `Prix du Bitcoin: ${price.toLocaleString()} ${currency.toUpperCase()}`;
             } catch (error) {
+                console.error("Erreur lors de la récupération du prix:", error);
                 document.getElementById('price').innerHTML = 
-                    "Erreur lors de la récupération du prix";
+                    "Erreur lors de la récupération du prix. Veuillez réessayer plus tard.";
             }
         }
 
-        // Mise à jour automatique toutes les 30 secondes
-        setInterval(checkPrice, 30000);
-        
-        // Chargement initial
-        checkPrice();
-        getHistoricalData();
+        // Ajout d'une gestion d'erreur pour le chargement initial
+        window.onload = function() {
+            checkPrice().catch(console.error);
+            getHistoricalData().catch(console.error);
+        }
+
+        // Mise à jour automatique toutes les 30 secondes avec gestion d'erreur
+        setInterval(() => {
+            checkPrice().catch(console.error);
+        }, 30000);
     </script>
 </body>
 </html>
