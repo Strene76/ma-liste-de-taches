@@ -220,6 +220,15 @@
             input, select, button {
                 font-size: 16px;
             }
+            
+            .btn-supprimer {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+
             .small-section {
     font-size: 0.85em;
     margin-bottom: 20px;
@@ -263,14 +272,6 @@
 
 .status-covoiturage {
     background-color: var(--primary-color);
-}
-            .btn-supprimer {
-                padding: 8px 12px;
-                font-size: 14px;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -306,16 +307,6 @@
                     <div class="input-group full-width">
                         <label for="lieuRdv">Lieu du rendez-vous</label>
                         <input type="text" id="lieuRdv" placeholder="Point de rendez-vous">
-                        <div class="section small-section">
-    <h2>Liste complète des joueurs</h2>
-    <div class="players-grid">
-        <div class="players-column">
-            <h3>Participants</h3>
-            <ul id="listeJoueursComplet" class="small-list"></ul>
-        </div>
-        <div class="players-column">
-            <h3>Covoiturage</h3>
-            <ul id="listeJoueursCovoiturage" class="small-list"></ul>
                     </div>
                 </div>
             </div>
@@ -343,7 +334,19 @@
             <button onclick="ajouterConducteur()">Ajouter</button>
             <ul id="listeConducteurs"></ul>
         </div>
-
+        
+        <div class="section small-section">
+    <h2>Liste complète des joueurs</h2>
+    <div class="players-grid">
+        <div class="players-column">
+            <h3>Participants</h3>
+            <ul id="listeJoueursComplet" class="small-list"></ul>
+        </div>
+        <div class="players-column">
+            <h3>Covoiturage</h3>
+            <ul id="listeJoueursCovoiturage" class="small-list"></ul>
+        </div>
+        
         <div class="section">
             <h2>Assigner les joueurs aux voitures</h2>
             <select id="selectConducteur"></select>
@@ -590,7 +593,27 @@
             listeConducteurs.appendChild(li);
         }
 
-        function mettreAJourListesJoueurs(data) {
+        // Mettre à jour les assignations
+        const assignationsDiv = document.getElementById('assignations');
+        assignationsDiv.innerHTML = '';
+        for (const key in data.conducteurs) {
+            const conducteur = data.conducteurs[key];
+            const assignation = document.createElement('div');
+            assignation.className = 'assignation';
+            
+            const nombrePassagers = Object.keys(conducteur.passagers || {}).length;
+            const header = document.createElement('h3');
+            header.textContent = `${conducteur.nom} (${conducteur.trajet}) - ${nombrePassagers}/${conducteur.nombrePlaces} places`;
+            assignation.appendChild(header);
+
+            const ul = document.createElement('ul');
+            for (const joueurKey in conducteur.passagers) {
+                if (data.joueurs && data.joueurs[joueurKey]) {
+                    const li = document.createElement('li');
+                    li.textContent = data.joueurs[joueurKey].nom;
+                    ul.appendChild(li);
+                }
+             function mettreAJourListesJoueurs(data) {
     const listeComplete = document.getElementById('listeJoueursComplet');
     const listeCovoiturage = document.getElementById('listeJoueursCovoiturage');
     
@@ -618,27 +641,7 @@
                 `${joueur.nom} (${joueur.assigneAller ? 'A' : ''}${joueur.assigneRetour ? 'R' : ''})`
             ));
             listeCovoiturage.appendChild(liCovoiturage);
-        }
-        // Mettre à jour les assignations
-        const assignationsDiv = document.getElementById('assignations');
-        assignationsDiv.innerHTML = '';
-        for (const key in data.conducteurs) {
-            const conducteur = data.conducteurs[key];
-            const assignation = document.createElement('div');
-            assignation.className = 'assignation';
-            
-            const nombrePassagers = Object.keys(conducteur.passagers || {}).length;
-            const header = document.createElement('h3');
-            header.textContent = `${conducteur.nom} (${conducteur.trajet}) - ${nombrePassagers}/${conducteur.nombrePlaces} places`;
-            assignation.appendChild(header);
-
-            const ul = document.createElement('ul');
-            for (const joueurKey in conducteur.passagers) {
-                if (data.joueurs && data.joueurs[joueurKey]) {
-                    const li = document.createElement('li');
-                    li.textContent = data.joueurs[joueurKey].nom;
-                    ul.appendChild(li);
-                }
+        }   
             }
             assignation.appendChild(ul);
             assignationsDiv.appendChild(assignation);
