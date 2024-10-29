@@ -28,72 +28,89 @@
         }
 
         .container {
+            width: 100%;
             max-width: 600px;
             margin: 0 auto;
         }
 
         h1 {
             color: var(--primary);
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
             text-align: center;
         }
 
         .form-group {
             background: var(--surface);
-            padding: 1rem;
+            padding: 1.5rem;
             border-radius: 12px;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         label {
             display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-secondary);
+            margin-bottom: 0.8rem;
+            color: var(--text);
+            font-size: 1.1rem;
         }
 
-        select, input, button {
+        select, input {
             width: 100%;
-            padding: 0.8rem;
-            border: none;
+            padding: 1rem;
+            border: 1px solid #3d3d3d;
             border-radius: 8px;
             background: #2d2d2d;
             color: var(--text);
             font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        input {
-            border: 1px solid #3d3d3d;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
         }
 
         button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
             background: var(--primary);
-            color: #000;
+            color: black;
+            font-size: 1rem;
             font-weight: bold;
-            margin-top: 1rem;
             cursor: pointer;
+            margin-bottom: 1rem;
         }
 
-        button:active {
-            transform: scale(0.98);
+        button:hover {
+            background: #c49bff;
         }
 
-        #result {
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            background: #2d2d2d;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid #3d3d3d;
+        }
+
+        .tag:hover {
+            border-color: var(--primary);
+        }
+
+        #results {
             background: var(--surface);
             padding: 1.5rem;
             border-radius: 12px;
             margin-top: 1.5rem;
-            display: none;
         }
 
         .result-item {
             margin-bottom: 1rem;
+            padding: 0.5rem;
         }
 
         .result-label {
@@ -106,24 +123,17 @@
             color: var(--text);
         }
 
-        .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
+        .hidden {
+            display: none;
         }
 
-        .tag {
-            background: #2d2d2d;
-            padding: 0.3rem 0.8rem;
-            border-radius: 16px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .tag:hover {
-            background: #3d3d3d;
+        .error {
+            background: #ff5555;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
         }
     </style>
 </head>
@@ -133,22 +143,7 @@
         
         <div class="form-group">
             <label for="type">Type de linge</label>
-            <input type="text" id="type" list="types-suggestions" placeholder="Entrez ou sélectionnez un type de linge">
-            <datalist id="types-suggestions">
-                <option value="Coton">
-                <option value="Synthétique">
-                <option value="Délicat">
-                <option value="Laine">
-                <option value="Jeans">
-                <option value="Serviettes">
-                <option value="Draps">
-                <option value="T-shirts">
-                <option value="Pulls">
-                <option value="Sous-vêtements">
-                <option value="Chemises">
-                <option value="Vestes">
-                <option value="Pantalons">
-            </datalist>
+            <input type="text" id="type" placeholder="Entrez ou sélectionnez un type de linge">
             <div class="tags">
                 <span class="tag" onclick="setType('Coton')">Coton</span>
                 <span class="tag" onclick="setType('Synthétique')">Synthétique</span>
@@ -180,17 +175,19 @@
 
         <button onclick="getProgramme()">Obtenir le programme</button>
 
-        <div id="result">
+        <div id="error" class="error hidden"></div>
+
+        <div id="results" class="hidden">
             <div class="result-item">
-                <div class="result-label">Programme recommandé:</div>
+                <div class="result-label">Programme recommandé</div>
                 <div class="result-value" id="programme"></div>
             </div>
             <div class="result-item">
-                <div class="result-label">Température:</div>
+                <div class="result-label">Température</div>
                 <div class="result-value" id="temperature"></div>
             </div>
             <div class="result-item">
-                <div class="result-label">Conseils:</div>
+                <div class="result-label">Conseils</div>
                 <div class="result-value" id="conseils"></div>
             </div>
         </div>
@@ -201,13 +198,29 @@
             document.getElementById('type').value = value;
         }
 
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+        }
+
+        function showResults(programme, temperature, conseils) {
+            document.getElementById('error').classList.add('hidden');
+            const resultsDiv = document.getElementById('results');
+            document.getElementById('programme').textContent = programme;
+            document.getElementById('temperature').textContent = temperature;
+            document.getElementById('conseils').textContent = conseils;
+            resultsDiv.classList.remove('hidden');
+        }
+
         function getProgramme() {
             const type = document.getElementById('type').value.toLowerCase();
             const color = document.getElementById('color').value;
             const soil = document.getElementById('soil').value;
 
             if (!type || !color || !soil) {
-                alert('Veuillez remplir tous les champs');
+                showError('Veuillez remplir tous les champs');
                 return;
             }
 
@@ -226,31 +239,26 @@
                     temperature = '40°C';
                     conseils = 'Utilisez une lessive adaptée à la couleur';
                 }
-            } else if (type.includes('synthetique') || type.includes('polyester') || type.includes('t-shirt')) {
+            } else if (type.includes('synthetique') || type.includes('polyester')) {
                 programme = 'Synthétique';
                 temperature = '30°C';
                 conseils = 'Évitez de trop charger le tambour';
-            } else if (type.includes('delicat') || type.includes('soie') || type.includes('lingerie')) {
+            } else if (type.includes('delicat') || type.includes('soie')) {
                 programme = 'Délicat';
                 temperature = '30°C';
                 conseils = 'Utilisez un filet de lavage si possible';
-            } else if (type.includes('laine') || type.includes('pull') || type.includes('cachemire')) {
+            } else if (type.includes('laine') || type.includes('pull')) {
                 programme = 'Laine/Main';
                 temperature = '20°C';
                 conseils = 'Utilisez une lessive spéciale laine';
-            } else if (type.includes('jean') || type.includes('veste')) {
+            } else if (type.includes('jean')) {
                 programme = 'Jean/Robuste';
                 temperature = '40°C';
                 conseils = 'Retournez le vêtement avant le lavage';
-            } else if (type.includes('chemise')) {
-                programme = 'Chemises';
-                temperature = '30°C';
-                conseils = 'Utilisez le programme spécial chemises si disponible';
             } else {
-                // Programme par défaut pour les types non reconnus
                 programme = 'Standard';
                 temperature = '30°C';
-                conseils = 'En cas de doute, consultez l'étiquette d'entretien du vêtement';
+                conseils = 'Consultez l\'étiquette du vêtement';
             }
 
             // Ajustement selon le niveau de saleté
@@ -260,10 +268,7 @@
                 temperature = '40°C';
             }
 
-            document.getElementById('programme').textContent = programme;
-            document.getElementById('temperature').textContent = temperature;
-            document.getElementById('conseils').textContent = conseils;
-            document.getElementById('result').style.display = 'block';
+            showResults(programme, temperature, conseils);
         }
     </script>
 </body>
