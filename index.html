@@ -3,364 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistant Lavage</title>
+    <title>Ma Liste de Tâches Partagée</title>
     <style>
-        :root {
-            --background: #121212;
-            --surface: #1e1e1e;
-            --primary: #BB86FC;
-            --text: #ffffff;
-            --text-secondary: #b0b0b0;
+        /* Mode sombre */
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #1a1a1a; 
+            color: #ffffff;
+            margin: 0; 
+            padding: 20px; 
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        .container { 
+            max-width: 500px; 
+            margin: 0 auto; 
+            background-color: #2d2d2d; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
         }
-
-        body {
-            background-color: var(--background);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 20px;
+        h1 { 
+            text-align: center; 
+            color: #ffffff;
+            margin-bottom: 30px;
         }
-
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
+        .input-container { 
+            display: flex; 
+            margin-bottom: 20px; 
         }
-
-        h1 {
-            color: var(--primary);
-            margin-bottom: 2rem;
-            font-size: 1.8rem;
-            text-align: center;
+        #newNote { 
+            flex-grow: 1; 
+            padding: 12px; 
+            font-size: 16px; 
+            border: none; 
+            background-color: #404040; 
+            color: #ffffff;
+            border-radius: 4px 0 0 4px; 
         }
-
-        .form-group {
-            background: var(--surface);
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
+        #newNote::placeholder {
+            color: #aaaaaa;
         }
-
-        .placeholder-text {
-            color: var(--text-secondary);
-            padding: 1rem;
+        #newNote:focus {
+            outline: none;
+            background-color: #4a4a4a;
         }
-
-        .category-title {
-            color: var(--primary);
-            font-size: 1.2rem;
-            margin: 1.5rem 0 1rem 0;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--primary);
+        #addNote { 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            border-radius: 0 4px 4px 0;
+            transition: background-color 0.3s ease;
         }
-
-        .item-button {
-            display: inline-block;
-            background: #2d2d2d;
-            color: var(--text);
-            padding: 0.8rem 1.2rem;
-            margin: 0.4rem;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.95rem;
+        #addNote:hover {
+            background-color: #3d8b40;
         }
-
-        .item-button:hover {
-            background: #3d3d3d;
+        ul { 
+            list-style-type: none; 
+            padding: 0; 
         }
-
-        .item-button.selected {
-            background: var(--primary);
-            color: black;
+        li { 
+            background-color: #404040; 
+            border: 1px solid #505050; 
+            margin-bottom: 10px; 
+            padding: 12px; 
+            border-radius: 4px; 
+            display: flex; 
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease;
         }
-
-        #selectedItems {
-            margin: 1rem 0;
-            padding: 1rem;
-            min-height: 60px;
-            background: #2d2d2d;
-            border-radius: 8px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
+        li:hover {
+            background-color: #454545;
+            transform: translateX(5px);
         }
-
-        .selected-item {
-            background: var(--primary);
-            color: black;
-            padding: 0.5rem 1rem;
-            border-radius: 16px;
+        .completed { 
+            text-decoration: line-through; 
+            color: #888888; 
         }
-
-        select {
-            width: 100%;
-            padding: 1rem;
-            margin-top: 0.5rem;
-            background: #2d2d2d;
-            color: var(--text);
-            border: 1px solid #3d3d3d;
-            border-radius: 8px;
-            font-size: 1rem;
+        .delete { 
+            background-color: #dc3545; 
+            color: white; 
+            border: none; 
+            padding: 8px 12px; 
+            margin-left: 10px; 
+            cursor: pointer; 
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
         }
-
-        .action-button {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary);
-            color: black;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 1rem;
-            font-size: 1rem;
+        .delete:hover {
+            background-color: #c82333;
         }
-
-        .hidden {
-            display: none;
+        input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            accent-color: #4CAF50;
         }
-
-        .category {
-            margin-bottom: 2rem;
+        /* Animation pour les nouveaux éléments */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        li {
+            animation: fadeIn 0.3s ease;
         }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Assistant Machine à Laver</h1>
-
-        <div class="form-group">
-            <div id="selectedItems">
-                <span class="placeholder-text">Sélectionnez vos types de linge...</span>
-            </div>
-
-            <div class="category">
-                <div class="category-title">Vêtements courants</div>
-                <div>
-                    <button class="item-button" data-value="T-shirt">T-shirt</button>
-                    <button class="item-button" data-value="Pull">Pull</button>
-                    <button class="item-button" data-value="Sweat">Sweat</button>
-                    <button class="item-button" data-value="Jean">Jean</button>
-                    <button class="item-button" data-value="Pantalon">Pantalon</button>
-                    <button class="item-button" data-value="Chemise">Chemise</button>
-                    <button class="item-button" data-value="Chaussettes">Chaussettes</button>
-                    <button class="item-button" data-value="Sous-vêtements">Sous-vêtements</button>
-                    <button class="item-button" data-value="Pyjama">Pyjama</button>
-                    <button class="item-button" data-value="Short">Short</button>
-                    <button class="item-button" data-value="Robe">Robe</button>
-                    <button class="item-button" data-value="Jupe">Jupe</button>
-                    <button class="item-button" data-value="Gilet">Gilet</button>
-                    <button class="item-button" data-value="Veste légère">Veste légère</button>
-                </div>
-            </div>
-
-            <div class="category">
-                <div class="category-title">Linge de maison</div>
-                <div>
-                    <button class="item-button" data-value="Draps">Draps</button>
-                    <button class="item-button" data-value="Serviettes">Serviettes</button>
-                    <button class="item-button" data-value="Taies d'oreiller">Taies d'oreiller</button>
-                    <button class="item-button" data-value="Housse de couette">Housse de couette</button>
-                    <button class="item-button" data-value="Torchons">Torchons</button>
-                    <button class="item-button" data-value="Nappes">Nappes</button>
-                    <button class="item-button" data-value="Rideaux">Rideaux</button>
-                </div>
-            </div>
-
-            <div class="category">
-                <div class="category-title">Vêtements de sport</div>
-                <div>
-                    <button class="item-button" data-value="Maillot de sport">Maillot de sport</button>
-                    <button class="item-button" data-value="Legging">Legging</button>
-                    <button class="item-button" data-value="Short de sport">Short de sport</button>
-                    <button class="item-button" data-value="Survêtement">Survêtement</button>
-                    <button class="item-button" data-value="Maillot de bain">Maillot de bain</button>
-                </div>
-            </div>
+        <h1>Ma Liste de Tâches</h1>
+        <div class="input-container">
+            <input type="text" id="newNote" placeholder="Ajouter une nouvelle tâche...">
+            <button id="addNote">+</button>
         </div>
-
-        <div class="form-group">
-            <label>Couleur dominante</label>
-            <select id="color">
-                <option value="">Sélectionnez la couleur</option>
-                <option value="blanc">Blanc</option>
-                <option value="couleur">Couleur</option>
-                <option value="noir">Noir/Foncé</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Niveau de saleté</label>
-            <select id="soil">
-                <option value="">Sélectionnez le niveau</option>
-                <option value="leger">Légèrement sale</option>
-                <option value="normal">Normal</option>
-                <option value="tres">Très sale</option>
-            </select>
-        </div>
-
-        <button class="action-button" onclick="analyserLinge()">Obtenir les recommandations de lavage</button>
-        
-        <div id="results" class="hidden"></div>
+        <ul id="noteList"></ul>
     </div>
 
-<script>
-    let selectedItems = new Set();
-
-    document.querySelectorAll('.item-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const value = this.dataset.value;
-            if (this.classList.contains('selected')) {
-                selectedItems.delete(value);
-                this.classList.remove('selected');
-            } else {
-                selectedItems.add(value);
-                this.classList.add('selected');
-            }
-            updateSelectedItemsDisplay();
-        });
-    });
-
-    function updateSelectedItemsDisplay() {
-        const container = document.getElementById('selectedItems');
-        if (selectedItems.size === 0) {
-            container.innerHTML = '<span class="placeholder-text">Sélectionnez vos types de linge...</span>';
-            return;
-        }
-        
-        container.innerHTML = Array.from(selectedItems).map(item => 
-            `<div class="selected-item">${item}</div>`
-        ).join('');
-    }
-
-    function groupeVetements(items) {
-        const groupes = {
-            delicat: [],
-            resistant: [],
-            normal: [],
-            sportif: []
+    <script>
+        // Configuration Firebase (à remplacer par vos propres détails de configuration)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
+  authDomain: "ma-liste-de-taches.firebaseapp.com",
+  databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
+  projectId: "ma-liste-de-taches",
+  storageBucket: "ma-liste-de-taches.appspot.com",
+  messagingSenderId: "614607808736",
+  appId: "1:614607808736:web:d4490906c783cb14040885"
         };
 
-        items.forEach(item => {
-            const itemLower = item.toLowerCase();
-            // Vêtements délicats
-            if (['chemise', 'robe', 'sous-vêtements', 'pyjama'].some(v => itemLower.includes(v))) {
-                groupes.delicat.push(item);
-            }
-            // Vêtements résistants
-            else if (['jean', 'serviettes', 'draps', 'torchons', 'nappes'].some(v => itemLower.includes(v))) {
-                groupes.resistant.push(item);
-            }
-            // Vêtements de sport
-            else if (['sport', 'legging', 'survêtement', 'maillot de bain'].some(v => itemLower.includes(v))) {
-                groupes.sportif.push(item);
-            }
-            // Vêtements normaux
-            else {
-                groupes.normal.push(item);
-            }
-        });
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const notesRef = database.ref('notes');
 
-        return groupes;
-    }
-
-    function getProgrammeTemperature(groupe, soil, color) {
-        switch(groupe) {
-            case 'delicat':
-                return {
-                    programme: 'Délicat',
-                    temperature: soil === 'tres' ? '40°C' : '30°C',
-                    conseils: 'Utilisez un filet de lavage et une lessive pour linge délicat.'
-                };
-            case 'resistant':
-                return {
-                    programme: 'Intensif',
-                    temperature: soil === 'leger' ? '40°C' : '60°C',
-                    conseils: 'Programme long avec plus d\'action mécanique.'
-                };
-            case 'sportif':
-                return {
-                    programme: 'Sport',
-                    temperature: '30°C',
-                    conseils: 'Utilisez une lessive spéciale textiles synthétiques.'
-                };
-            default:
-                return {
-                    programme: 'Normal',
-                    temperature: soil === 'tres' ? '40°C' : '30°C',
-                    conseils: 'Programme standard adapté.'
-                };
-        }
-    }
-
-    function analyserLinge() {
-        const color = document.getElementById('color').value;
-        const soil = document.getElementById('soil').value;
-        const resultsDiv = document.getElementById('results');
-
-        if (selectedItems.size === 0 || !color || !soil) {
-            alert('Veuillez sélectionner au moins un type de linge et remplir tous les champs');
-            return;
-        }
-
-        const groupes = groupeVetements(Array.from(selectedItems));
-        let recommendations = '';
-        let hasMultipleGroups = false;
-
-        // Vérifier s'il y a plusieurs groupes
-        const groupesNonVides = Object.values(groupes).filter(g => g.length > 0);
-        if (groupesNonVides.length > 1) {
-            hasMultipleGroups = true;
-            recommendations += `
-                <div style="background: #3d3d3d; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; color: #FFB74D;">
-                    <strong>⚠️ Attention :</strong> Pour de meilleurs résultats, il est recommandé de séparer votre linge en plusieurs lavages.
-                </div>
+        function renderNote(key, note) {
+            const li = document.createElement('li');
+            li.setAttribute('data-key', key);
+            li.innerHTML = `
+                <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote('${key}', ${note.completed})">
+                <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
+                <button class="delete" onclick="deleteNote('${key}')">×</button>
             `;
+            return li;
         }
 
-        // Générer les recommandations pour chaque groupe
-        Object.entries(groupes).forEach(([type, items]) => {
-            if (items.length > 0) {
-                const { programme, temperature, conseils } = getProgrammeTemperature(type, soil, color);
-                
-                // Ajouter des conseils spécifiques selon la couleur
-                let conseilsCouleur = '';
-                if (color === 'blanc') {
-                    conseilsCouleur = 'Utilisez de la lessive pour linge blanc.';
-                } else if (color === 'noir') {
-                    conseilsCouleur = 'Utilisez une lessive spéciale linge noir/foncé pour préserver les couleurs.';
-                } else {
-                    conseilsCouleur = 'Utilisez une lessive pour linge de couleur.';
-                }
+        function addNote() {
+            const newNoteInput = document.getElementById('newNote');
+            const noteText = newNoteInput.value.trim();
+            if (noteText !== '') {
+                notesRef.push({ text: noteText, completed: false });
+                newNoteInput.value = '';
+            }
+        }
 
-                recommendations += `
-                    <div style="background: #2d2d2d; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <h3 style="color: var(--primary); margin-bottom: 0.8rem;">Groupe : ${type.charAt(0).toUpperCase() + type.slice(1)}</h3>
-                        <div style="margin-bottom: 0.8rem;">
-                            <strong>Articles :</strong>
-                            <ul style="list-style-type: none; padding-left: 0;">
-                                ${items.map(item => `<li style="margin: 0.3rem 0;">• ${item}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div style="margin-bottom: 0.5rem;"><strong>Programme :</strong> ${programme}</div>
-                        <div style="margin-bottom: 0.5rem;"><strong>Température :</strong> ${temperature}</div>
-                        <div style="margin-bottom: 0.5rem;"><strong>Conseils :</strong> ${conseils}</div>
-                        <div style="margin-bottom: 0.5rem;"><strong>Lessive :</strong> ${conseilsCouleur}</div>
-                    </div>
-                `;
+        function toggleNote(key, completed) {
+            notesRef.child(key).update({ completed: !completed });
+        }
+
+        function deleteNote(key) {
+            console.log('Deleting note with key:', key);
+            notesRef.child(key).remove()
+                .then(() => console.log('Note successfully deleted'))
+                .catch(error => console.error('Error deleting note:', error));
+        }
+
+        // Écouter les changements dans la base de données
+        notesRef.on('child_added', snapshot => {
+            console.log('Note added:', snapshot.key);
+            const noteList = document.getElementById('noteList');
+            noteList.appendChild(renderNote(snapshot.key, snapshot.val()));
+        });
+
+        notesRef.on('child_changed', snapshot => {
+            console.log('Note changed:', snapshot.key);
+            const liToUpdate = document.querySelector(`li[data-key="${snapshot.key}"]`);
+            if (liToUpdate) {
+                liToUpdate.parentNode.replaceChild(renderNote(snapshot.key, snapshot.val()), liToUpdate);
             }
         });
 
-        resultsDiv.innerHTML = recommendations;
-        resultsDiv.classList.remove('hidden');
-        resultsDiv.scrollIntoView({ behavior: 'smooth' });
-    }
-</script>
+        notesRef.on('child_removed', snapshot => {
+            console.log('Note removed:', snapshot.key);
+            const liToRemove = document.querySelector(`li[data-key="${snapshot.key}"]`);
+            if (liToRemove) {
+                liToRemove.remove();
+            }
+        });
+
+        document.getElementById('addNote').addEventListener('click', addNote);
+        document.getElementById('newNote').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addNote();
+        });
+    </script>
+</body>
+</html>
