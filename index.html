@@ -11,6 +11,9 @@
             --primary: #BB86FC;
             --text: #ffffff;
             --text-secondary: #b0b0b0;
+            --warning: #FFB74D;
+            --error: #ff5555;
+            --success: #4CAF50;
         }
 
         * {
@@ -54,7 +57,7 @@
             font-size: 1.1rem;
         }
 
-        select, input {
+        select, input, button {
             width: 100%;
             padding: 1rem;
             border: 1px solid #3d3d3d;
@@ -65,20 +68,43 @@
         }
 
         button {
-            width: 100%;
-            padding: 1rem;
-            border: none;
-            border-radius: 8px;
             background: var(--primary);
             color: black;
-            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 1rem;
+            border: none;
+            margin-top: 0.5rem;
         }
 
         button:hover {
             background: #c49bff;
+        }
+
+        .selected-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .selected-item {
+            background: var(--primary);
+            color: black;
+            padding: 0.5rem 1rem;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remove-item {
+            background: none;
+            border: none;
+            color: black;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
+            margin: 0;
         }
 
         .tags {
@@ -108,9 +134,24 @@
             margin-top: 1.5rem;
         }
 
+        .result-group {
+            background: #2d2d2d;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .result-group-title {
+            color: var(--warning);
+            font-weight: bold;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
         .result-item {
             margin-bottom: 1rem;
             padding: 0.5rem;
+            border-left: 3px solid var(--primary);
         }
 
         .result-label {
@@ -123,17 +164,40 @@
             color: var(--text);
         }
 
+        .warning-text {
+            color: var(--warning);
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
         .hidden {
             display: none;
         }
 
         .error {
-            background: #ff5555;
+            background: var(--error);
             color: white;
             padding: 1rem;
             border-radius: 8px;
             margin: 1rem 0;
             text-align: center;
+        }
+
+        .items-list {
+            list-style: none;
+            margin: 0.5rem 0;
+        }
+
+        .items-list li {
+            padding: 0.3rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .items-list li::before {
+            content: "•";
+            color: var(--primary);
         }
     </style>
 </head>
@@ -142,8 +206,9 @@
         <h1>Assistant Machine à Laver</h1>
         
         <div class="form-group">
-            <label for="type">Type de linge</label>
+            <label for="type">Types de linge (ajoutez plusieurs items)</label>
             <input type="text" id="type" placeholder="Entrez ou sélectionnez un type de linge">
+            <button onclick="addItem()">Ajouter</button>
             <div class="tags">
                 <span class="tag" onclick="setType('Coton')">Coton</span>
                 <span class="tag" onclick="setType('Synthétique')">Synthétique</span>
@@ -151,10 +216,11 @@
                 <span class="tag" onclick="setType('Laine')">Laine</span>
                 <span class="tag" onclick="setType('Jeans')">Jeans</span>
             </div>
+            <div id="selectedItems" class="selected-items"></div>
         </div>
 
         <div class="form-group">
-            <label for="color">Couleur</label>
+            <label for="color">Couleur dominante</label>
             <select id="color">
                 <option value="">Sélectionnez la couleur</option>
                 <option value="blanc">Blanc</option>
@@ -177,25 +243,45 @@
 
         <div id="error" class="error hidden"></div>
 
-        <div id="results" class="hidden">
-            <div class="result-item">
-                <div class="result-label">Programme recommandé</div>
-                <div class="result-value" id="programme"></div>
-            </div>
-            <div class="result-item">
-                <div class="result-label">Température</div>
-                <div class="result-value" id="temperature"></div>
-            </div>
-            <div class="result-item">
-                <div class="result-label">Conseils</div>
-                <div class="result-value" id="conseils"></div>
-            </div>
-        </div>
+        <div id="results" class="hidden"></div>
     </div>
 
     <script>
+        let selectedItems = [];
+
         function setType(value) {
             document.getElementById('type').value = value;
+        }
+
+        function addItem() {
+            const input = document.getElementById('type');
+            const value = input.value.trim();
+            
+            if (value && !selectedItems.includes(value)) {
+                selectedItems.push(value);
+                updateSelectedItemsDisplay();
+                input.value = '';
+            }
+        }
+
+        function removeItem(index) {
+            selectedItems.splice(index, 1);
+            updateSelectedItemsDisplay();
+        }
+
+        function updateSelectedItemsDisplay() {
+            const container = document.getElementById('selectedItems');
+            container.innerHTML = '';
+            
+            selectedItems.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'selected-item';
+                itemElement.innerHTML = `
+                    ${item}
+                    <button class="remove-item" onclick="removeItem(${index})">×</button>
+                `;
+                container.appendChild(itemElement);
+            });
         }
 
         function showError(message) {
@@ -205,70 +291,157 @@
             document.getElementById('results').classList.add('hidden');
         }
 
-        function showResults(programme, temperature, conseils) {
-            document.getElementById('error').classList.add('hidden');
-            const resultsDiv = document.getElementById('results');
-            document.getElementById('programme').textContent = programme;
-            document.getElementById('temperature').textContent = temperature;
-            document.getElementById('conseils').textContent = conseils;
-            resultsDiv.classList.remove('hidden');
+        function groupItems(items) {
+            const groups = {
+                delicat: [],
+                laine: [],
+                normal: [],
+                resistant: []
+            };
+
+            items.forEach(item => {
+                const itemLower = item.toLowerCase();
+                if (itemLower.includes('delicat') || itemLower.includes('soie') || itemLower.includes('lingerie')) {
+                    groups.delicat.push(item);
+                } else if (itemLower.includes('laine') || itemLower.includes('cachemire')) {
+                    groups.laine.push(item);
+                } else if (itemLower.includes('jean') || itemLower.includes('serviette') || itemLower.includes('drap')) {
+                    groups.resistant.push(item);
+                } else {
+                    groups.normal.push(item);
+                }
+            });
+
+            return groups;
         }
 
         function getProgramme() {
-            const type = document.getElementById('type').value.toLowerCase();
+            if (selectedItems.length === 0) {
+                showError('Veuillez ajouter au moins un type de linge');
+                return;
+            }
+
             const color = document.getElementById('color').value;
             const soil = document.getElementById('soil').value;
 
-            if (!type || !color || !soil) {
+            if (!color || !soil) {
                 showError('Veuillez remplir tous les champs');
                 return;
             }
 
-            let programme = '';
-            let temperature = '';
-            let conseils = '';
+            const groups = groupItems(selectedItems);
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            
+            // Créer les recommandations pour chaque groupe
+            let hasMultipleGroups = false;
+            let content = '';
 
-            // Logique pour déterminer le programme
-            if (type.includes('coton') || type.includes('serviette') || type.includes('drap')) {
-                if (color === 'blanc' && soil === 'tres') {
-                    programme = 'Coton intensif';
-                    temperature = '60°C';
-                    conseils = 'Utilisez de la lessive pour blanc avec agent blanchissant';
-                } else {
-                    programme = 'Coton standard';
-                    temperature = '40°C';
-                    conseils = 'Utilisez une lessive adaptée à la couleur';
-                }
-            } else if (type.includes('synthetique') || type.includes('polyester')) {
-                programme = 'Synthétique';
-                temperature = '30°C';
-                conseils = 'Évitez de trop charger le tambour';
-            } else if (type.includes('delicat') || type.includes('soie')) {
-                programme = 'Délicat';
-                temperature = '30°C';
-                conseils = 'Utilisez un filet de lavage si possible';
-            } else if (type.includes('laine') || type.includes('pull')) {
-                programme = 'Laine/Main';
-                temperature = '20°C';
-                conseils = 'Utilisez une lessive spéciale laine';
-            } else if (type.includes('jean')) {
-                programme = 'Jean/Robuste';
+            if (groups.delicat.length > 0) {
+                hasMultipleGroups = true;
+                content += createGroupRecommendation(
+                    'Linge Délicat',
+                    groups.delicat,
+                    'Délicat',
+                    '30°C',
+                    'Utilisez un filet de lavage et une lessive pour linge délicat',
+                    color,
+                    soil
+                );
+            }
+
+            if (groups.laine.length > 0) {
+                hasMultipleGroups = true;
+                content += createGroupRecommendation(
+                    'Laine et assimilés',
+                    groups.laine,
+                    'Laine/Main',
+                    '20°C',
+                    'Utilisez une lessive spéciale laine, lavage à la main recommandé',
+                    color,
+                    soil
+                );
+            }
+
+            if (groups.resistant.length > 0) {
+                hasMultipleGroups = true;
+                content += createGroupRecommendation(
+                    'Linge résistant',
+                    groups.resistant,
+                    'Intensif',
+                    '40°C',
+                    'Peut supporter un lavage intensif',
+                    color,
+                    soil
+                );
+            }
+
+            if (groups.normal.length > 0) {
+                content += createGroupRecommendation(
+                    'Linge standard',
+                    groups.normal,
+                    'Standard',
+                    '30°C',
+                    'Programme standard adapté',
+                    color,
+                    soil
+                );
+            }
+
+            if (hasMultipleGroups) {
+                content = `
+                    <div class="result-group">
+                        <div class="result-group-title">⚠️ Attention : Plusieurs types de lavage nécessaires</div>
+                        <div class="result-value">Les articles suivants doivent être lavés séparément pour un meilleur résultat et une meilleure conservation.</div>
+                    </div>
+                ` + content;
+            }
+
+            resultsDiv.innerHTML = content;
+            resultsDiv.classList.remove('hidden');
+            document.getElementById('error').classList.add('hidden');
+        }
+
+        function createGroupRecommendation(title, items, programme, baseTemp, baseConseils, color, soil) {
+            let temperature = baseTemp;
+            
+            // Ajuster la température selon le niveau de saleté
+            if (soil === 'tres' && temperature === '30°C') {
                 temperature = '40°C';
-                conseils = 'Retournez le vêtement avant le lavage';
+            } else if (soil === 'leger' && temperature === '40°C') {
+                temperature = '30°C';
+            }
+
+            // Ajuster les conseils selon la couleur
+            let conseils = baseConseils;
+            if (color === 'blanc') {
+                conseils += '. Utilisez une lessive pour blanc';
+            } else if (color === 'noir') {
+                conseils += '. Utilisez une lessive pour linge foncé';
             } else {
-                programme = 'Standard';
-                temperature = '30°C';
-                conseils = 'Consultez l\'étiquette du vêtement';
+                conseils += '. Utilisez une lessive pour couleurs';
             }
 
-            // Ajustement selon le niveau de saleté
-            if (soil === 'leger' && temperature === '40°C') {
-                temperature = '30°C';
-            } else if (soil === 'tres' && temperature === '30°C') {
-                temperature = '40°C';
-            }
-
-            showResults(programme, temperature, conseils);
+            return `
+                <div class="result-group">
+                    <div class="result-group-title">${title}</div>
+                    <ul class="items-list">
+                        ${items.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                    <div class="result-item">
+                        <div class="result-label">Programme recommandé</div>
+                        <div class="result-value">${programme}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Température</div>
+                        <div class="result-value">${temperature}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Conseils</div>
+                        <div class="result-value">${conseils}</div>
+                    </div>
+                </div>
+            `;
         }
     </script>
 </body>
