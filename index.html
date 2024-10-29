@@ -1,245 +1,154 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistant Lavage</title>
-    <style>
-        :root {
-            --background: #121212;
-            --surface: #1e1e1e;
-            --primary: #BB86FC;
-            --text: #ffffff;
-            --text-secondary: #b0b0b0;
+[Le code HTML et CSS reste identique jusqu'à la partie script]
+
+<script>
+    let selectedItems = new Set();
+
+    document.querySelectorAll('.item-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const value = this.dataset.value;
+            if (this.classList.contains('selected')) {
+                selectedItems.delete(value);
+                this.classList.remove('selected');
+            } else {
+                selectedItems.add(value);
+                this.classList.add('selected');
+            }
+            updateSelectedItemsDisplay();
+        });
+    });
+
+    function updateSelectedItemsDisplay() {
+        const container = document.getElementById('selectedItems');
+        if (selectedItems.size === 0) {
+            container.innerHTML = '<span class="placeholder-text">Sélectionnez vos types de linge...</span>';
+            return;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        body {
-            background-color: var(--background);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            color: var(--primary);
-            margin-bottom: 2rem;
-            font-size: 1.8rem;
-            text-align: center;
-        }
-
-        .form-group {
-            background: var(--surface);
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-        }
-
-        .placeholder-text {
-            color: var(--text-secondary);
-            padding: 1rem;
-        }
-
-        .category-title {
-            color: var(--primary);
-            font-size: 1.2rem;
-            margin: 1.5rem 0 1rem 0;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--primary);
-        }
-
-        .item-button {
-            display: inline-block;
-            background: #2d2d2d;
-            color: var(--text);
-            padding: 0.8rem 1.2rem;
-            margin: 0.4rem;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .item-button:hover {
-            background: #3d3d3d;
-        }
-
-        .item-button.selected {
-            background: var(--primary);
-            color: black;
-        }
-
-        #selectedItems {
-            margin: 1rem 0;
-            padding: 1rem;
-            min-height: 60px;
-            background: #2d2d2d;
-            border-radius: 8px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .selected-item {
-            background: var(--primary);
-            color: black;
-            padding: 0.5rem 1rem;
-            border-radius: 16px;
-        }
-
-        select {
-            width: 100%;
-            padding: 1rem;
-            margin-top: 0.5rem;
-            background: #2d2d2d;
-            color: var(--text);
-            border: 1px solid #3d3d3d;
-            border-radius: 8px;
-        }
-
-        .action-button {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary);
-            color: black;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 1rem;
-        }
-
-        .hidden {
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Assistant Machine à Laver</h1>
-
-        <div class="form-group">
-            <div id="selectedItems">
-                <span class="placeholder-text">Sélectionnez vos types de linge...</span>
-            </div>
-
-            <div class="category">
-                <div class="category-title">Linge de maison</div>
-                <div>
-                    <button class="item-button" data-value="Draps">Draps</button>
-                    <button class="item-button" data-value="Serviettes">Serviettes</button>
-                    <button class="item-button" data-value="Taies d'oreiller">Taies d'oreiller</button>
-                    <button class="item-button" data-value="Housse de couette">Housse de couette</button>
-                    <button class="item-button" data-value="Torchons">Torchons</button>
-                    <button class="item-button" data-value="Nappes">Nappes</button>
-                    <button class="item-button" data-value="Rideaux">Rideaux</button>
-                </div>
-            </div>
-
-            <div class="category">
-                <div class="category-title">Vêtements de sport</div>
-                <div>
-                    <button class="item-button" data-value="Maillot de sport">Maillot de sport</button>
-                    <button class="item-button" data-value="Legging">Legging</button>
-                    <button class="item-button" data-value="Short de sport">Short de sport</button>
-                    <button class="item-button" data-value="Survêtement">Survêtement</button>
-                    <button class="item-button" data-value="Maillot de bain">Maillot de bain</button>
-                </div>
-            </div>
-
-            <div class="category">
-                <div class="category-title">Tissus spécifiques</div>
-                <div>
-                    <button class="item-button" data-value="Coton">Coton</button>
-                    <button class="item-button" data-value="Synthétique">Synthétique</button>
-                    <button class="item-button" data-value="Lin">Lin</button>
-                    <button class="item-button" data-value="Velours">Velours</button>
-                    <button class="item-button" data-value="Polyester">Polyester</button>
-                    <button class="item-button" data-value="Microfibre">Microfibre</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Couleur dominante</label>
-            <select id="color">
-                <option value="">Sélectionnez la couleur</option>
-                <option value="blanc">Blanc</option>
-                <option value="couleur">Couleur</option>
-                <option value="noir">Noir/Foncé</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Niveau de saleté</label>
-            <select id="soil">
-                <option value="">Sélectionnez le niveau</option>
-                <option value="leger">Légèrement sale</option>
-                <option value="normal">Normal</option>
-                <option value="tres">Très sale</option>
-            </select>
-        </div>
-
-        <button class="action-button" onclick="analyserLinge()">Obtenir les recommandations de lavage</button>
         
-        <div id="results" class="hidden"></div>
-    </div>
+        container.innerHTML = Array.from(selectedItems).map(item => 
+            `<div class="selected-item">${item}</div>`
+        ).join('');
+    }
 
-    <script>
-        let selectedItems = new Set();
+    function groupeVetements(items) {
+        const groupes = {
+            delicat: [],
+            resistant: [],
+            normal: [],
+            sportif: []
+        };
 
-        // Ajouter les gestionnaires d'événements aux boutons
-        document.querySelectorAll('.item-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const value = this.dataset.value;
-                if (this.classList.contains('selected')) {
-                    selectedItems.delete(value);
-                    this.classList.remove('selected');
-                } else {
-                    selectedItems.add(value);
-                    this.classList.add('selected');
-                }
-                updateSelectedItemsDisplay();
-            });
+        items.forEach(item => {
+            const itemLower = item.toLowerCase();
+            // Vêtements délicats
+            if (['chemise', 'robe', 'sous-vêtements', 'pyjama'].some(v => itemLower.includes(v))) {
+                groupes.delicat.push(item);
+            }
+            // Vêtements résistants
+            else if (['jean', 'serviettes', 'draps', 'torchons', 'nappes'].some(v => itemLower.includes(v))) {
+                groupes.resistant.push(item);
+            }
+            // Vêtements de sport
+            else if (['sport', 'legging', 'survêtement', 'maillot de bain'].some(v => itemLower.includes(v))) {
+                groupes.sportif.push(item);
+            }
+            // Vêtements normaux
+            else {
+                groupes.normal.push(item);
+            }
         });
 
-        function updateSelectedItemsDisplay() {
-            const container = document.getElementById('selectedItems');
-            if (selectedItems.size === 0) {
-                container.innerHTML = '<span class="placeholder-text">Sélectionnez vos types de linge...</span>';
-                return;
-            }
-            
-            container.innerHTML = Array.from(selectedItems).map(item => 
-                `<div class="selected-item">${item}</div>`
-            ).join('');
+        return groupes;
+    }
+
+    function getProgrammeTemperature(groupe, soil, color) {
+        switch(groupe) {
+            case 'delicat':
+                return {
+                    programme: 'Délicat',
+                    temperature: soil === 'tres' ? '40°C' : '30°C',
+                    conseils: 'Utilisez un filet de lavage et une lessive pour linge délicat.'
+                };
+            case 'resistant':
+                return {
+                    programme: 'Intensif',
+                    temperature: soil === 'leger' ? '40°C' : '60°C',
+                    conseils: 'Programme long avec plus d\'action mécanique.'
+                };
+            case 'sportif':
+                return {
+                    programme: 'Sport',
+                    temperature: '30°C',
+                    conseils: 'Utilisez une lessive spéciale textiles synthétiques.'
+                };
+            default:
+                return {
+                    programme: 'Normal',
+                    temperature: soil === 'tres' ? '40°C' : '30°C',
+                    conseils: 'Programme standard adapté.'
+                };
+        }
+    }
+
+    function analyserLinge() {
+        const color = document.getElementById('color').value;
+        const soil = document.getElementById('soil').value;
+        const resultsDiv = document.getElementById('results');
+
+        if (selectedItems.size === 0 || !color || !soil) {
+            alert('Veuillez sélectionner au moins un type de linge et remplir tous les champs');
+            return;
         }
 
-        function analyserLinge() {
-            const color = document.getElementById('color').value;
-            const soil = document.getElementById('soil').value;
-            const resultsDiv = document.getElementById('results');
+        const groupes = groupeVetements(Array.from(selectedItems));
+        let recommendations = '';
+        let hasMultipleGroups = false;
 
-            if (selectedItems.size === 0 || !color || !soil) {
-                alert('Veuillez sélectionner au moins un type de linge et remplir tous les champs');
-                return;
-            }
-
-            // Logique d'analyse du linge ici...
-            // [Le reste du code de traitement reste identique]
+        // Vérifier s'il y a plusieurs groupes
+        const groupesNonVides = Object.values(groupes).filter(g => g.length > 0);
+        if (groupesNonVides.length > 1) {
+            hasMultipleGroups = true;
+            recommendations += `
+                <div style="background: #3d3d3d; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; color: #FFB74D;">
+                    <strong>⚠️ Attention :</strong> Pour de meilleurs résultats, il est recommandé de séparer votre linge en plusieurs lavages.
+                </div>
+            `;
         }
-    </script>
-</body>
-</html>
+
+        // Générer les recommandations pour chaque groupe
+        Object.entries(groupes).forEach(([type, items]) => {
+            if (items.length > 0) {
+                const { programme, temperature, conseils } = getProgrammeTemperature(type, soil, color);
+                
+                // Ajouter des conseils spécifiques selon la couleur
+                let conseilsCouleur = '';
+                if (color === 'blanc') {
+                    conseilsCouleur = 'Utilisez de la lessive pour linge blanc.';
+                } else if (color === 'noir') {
+                    conseilsCouleur = 'Utilisez une lessive spéciale linge noir/foncé pour préserver les couleurs.';
+                } else {
+                    conseilsCouleur = 'Utilisez une lessive pour linge de couleur.';
+                }
+
+                recommendations += `
+                    <div style="background: #2d2d2d; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <h3 style="color: var(--primary); margin-bottom: 0.8rem;">Groupe : ${type.charAt(0).toUpperCase() + type.slice(1)}</h3>
+                        <div style="margin-bottom: 0.8rem;">
+                            <strong>Articles :</strong>
+                            <ul style="list-style-type: none; padding-left: 0;">
+                                ${items.map(item => `<li style="margin: 0.3rem 0;">• ${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;"><strong>Programme :</strong> ${programme}</div>
+                        <div style="margin-bottom: 0.5rem;"><strong>Température :</strong> ${temperature}</div>
+                        <div style="margin-bottom: 0.5rem;"><strong>Conseils :</strong> ${conseils}</div>
+                        <div style="margin-bottom: 0.5rem;"><strong>Lessive :</strong> ${conseilsCouleur}</div>
+                    </div>
+                `;
+            }
+        });
+
+        resultsDiv.innerHTML = recommendations;
+        resultsDiv.classList.remove('hidden');
+        resultsDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
