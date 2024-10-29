@@ -25,47 +25,37 @@
             color: var(--text);
             min-height: 100vh;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .container {
-            width: 100%;
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         h1 {
             color: var(--primary);
-            margin-bottom: 2rem;
-            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
             text-align: center;
-            width: 100%;
         }
 
         .form-group {
             background: var(--surface);
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: 12px;
-            margin-bottom: 1.5rem;
-            width: 100%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 1rem;
         }
 
         label {
             display: block;
-            margin-bottom: 0.8rem;
-            color: var(--text);
-            font-size: 1.1rem;
-            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
         }
 
         select, input, button {
             width: 100%;
-            padding: 1rem;
-            border: 1px solid #3d3d3d;
+            padding: 0.8rem;
+            border: none;
             border-radius: 8px;
             background: #2d2d2d;
             color: var(--text);
@@ -73,18 +63,13 @@
             margin-bottom: 0.5rem;
         }
 
-        select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23BB86FC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            padding-right: 2.5rem;
+        input {
+            border: 1px solid #3d3d3d;
         }
 
-        input:focus, select:focus {
+        input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(187,134,252,0.3);
         }
 
         button {
@@ -93,12 +78,6 @@
             font-weight: bold;
             margin-top: 1rem;
             cursor: pointer;
-            border: none;
-            transition: transform 0.2s, background-color 0.2s;
-        }
-
-        button:hover {
-            background: #c49bff;
         }
 
         button:active {
@@ -110,70 +89,41 @@
             padding: 1.5rem;
             border-radius: 12px;
             margin-top: 1.5rem;
-            width: 100%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             display: none;
         }
 
         .result-item {
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
         }
 
         .result-label {
             color: var(--primary);
             font-weight: bold;
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
         }
 
         .result-value {
             color: var(--text);
-            line-height: 1.4;
-            font-size: 1rem;
         }
 
         .tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.8rem;
-            margin-top: 1rem;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
         }
 
         .tag {
             background: #2d2d2d;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 16px;
             font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid #3d3d3d;
+            transition: background-color 0.2s;
         }
 
         .tag:hover {
             background: #3d3d3d;
-            border-color: var(--primary);
-        }
-
-        .error {
-            background: #ff5555;
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-            width: 100%;
-            display: none;
-            text-align: center;
-        }
-
-        /* Animation pour l'affichage des résultats */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        #result.show {
-            display: block;
-            animation: fadeIn 0.3s ease-out;
         }
     </style>
 </head>
@@ -183,7 +133,7 @@
         
         <div class="form-group">
             <label for="type">Type de linge</label>
-            <input type="text" id="type" list="types-suggestions" placeholder="Entrez ou sélectionnez un type de linge" autocomplete="off">
+            <input type="text" id="type" list="types-suggestions" placeholder="Entrez ou sélectionnez un type de linge">
             <datalist id="types-suggestions">
                 <option value="Coton">
                 <option value="Synthétique">
@@ -230,19 +180,17 @@
 
         <button onclick="getProgramme()">Obtenir le programme</button>
 
-        <div id="error" class="error"></div>
-
         <div id="result">
             <div class="result-item">
-                <div class="result-label">Programme recommandé</div>
+                <div class="result-label">Programme recommandé:</div>
                 <div class="result-value" id="programme"></div>
             </div>
             <div class="result-item">
-                <div class="result-label">Température</div>
+                <div class="result-label">Température:</div>
                 <div class="result-value" id="temperature"></div>
             </div>
             <div class="result-item">
-                <div class="result-label">Conseils</div>
+                <div class="result-label">Conseils:</div>
                 <div class="result-value" id="conseils"></div>
             </div>
         </div>
@@ -254,95 +202,69 @@
         }
 
         function getProgramme() {
-            try {
-                const type = document.getElementById('type').value.toLowerCase();
-                const color = document.getElementById('color').value;
-                const soil = document.getElementById('soil').value;
-                const errorDiv = document.getElementById('error');
-                const resultDiv = document.getElementById('result');
+            const type = document.getElementById('type').value.toLowerCase();
+            const color = document.getElementById('color').value;
+            const soil = document.getElementById('soil').value;
 
-                // Masquer les messages précédents
-                errorDiv.style.display = 'none';
-                resultDiv.classList.remove('show');
-
-                if (!type || !color || !soil) {
-                    errorDiv.textContent = 'Veuillez remplir tous les champs';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-
-                let programme = '';
-                let temperature = '';
-                let conseils = '';
-
-                // Logique pour déterminer le programme
-                if (type.includes('coton') || type.includes('serviette') || type.includes('drap')) {
-                    if (color === 'blanc' && soil === 'tres') {
-                        programme = 'Coton intensif';
-                        temperature = '60°C';
-                        conseils = 'Consultez l\'étiquette du vêtement. Utilisez de la lessive pour blanc avec agent blanchissant';
-                    } else {
-                        programme = 'Coton standard';
-                        temperature = '40°C';
-                        conseils = 'Consultez l\'étiquette du vêtement. Utilisez une lessive adaptée à la couleur';
-                    }
-                } else if (type.includes('synthetique') || type.includes('polyester') || type.includes('t-shirt')) {
-                    programme = 'Synthétique';
-                    temperature = '30°C';
-                    conseils = 'Consultez l\'étiquette du vêtement. Évitez de trop charger le tambour';
-                } else if (type.includes('delicat') || type.includes('soie') || type.includes('lingerie')) {
-                    programme = 'Délicat';
-                    temperature = '30°C';
-                    conseils = 'Consultez l\'étiquette du vêtement. Utilisez un filet de lavage si possible';
-                } else if (type.includes('laine') || type.includes('pull') || type.includes('cachemire')) {
-                    programme = 'Laine/Main';
-                    temperature = '20°C';
-                    conseils = 'Consultez l\'étiquette du vêtement. Utilisez une lessive spéciale laine';
-                } else if (type.includes('jean') || type.includes('veste')) {
-                    programme = 'Jean/Robuste';
-                    temperature = '40°C';
-                    conseils = 'Consultez l\'étiquette du vêtement. Retournez le vêtement avant le lavage';
-                } else if (type.includes('chemise')) {
-                    programme = 'Chemises';
-                    temperature = '30°C';
-                    conseils = 'Consultez l\'étiquette du vêtement. Utilisez le programme spécial chemises si disponible';
-                } else {
-                    // Programme par défaut pour les types non reconnus
-                    programme = 'Standard';
-                    temperature = '30°C';
-                    conseils = 'Consultez l\'étiquette du vêtement avant tout lavage';
-                }
-
-                // Ajustement selon le niveau de saleté
-                if (soil === 'leger' && temperature === '40°C') {
-                    temperature = '30°C';
-                } else if (soil === 'tres' && temperature === '30°C') {
-                    temperature = '40°C';
-                }
-
-                document.getElementById('programme').textContent = programme;
-                document.getElementById('temperature').textContent = temperature;
-                document.getElementById('conseils').textContent = conseils;
-                
-                // Afficher les résultats avec animation
-                resultDiv.classList.add('show');
-            } catch (error) {
-                const errorDiv = document.getElementById('error');
-                errorDiv.textContent = 'Une erreur est survenue. Veuillez réessayer.';
-                errorDiv.style.display = 'block';
-                console.error(error);
+            if (!type || !color || !soil) {
+                alert('Veuillez remplir tous les champs');
+                return;
             }
-        }
 
-        // Initialiser l'application
-        document.addEventListener('DOMContentLoaded', function() {
-            const resultDiv = document.getElementById('result');
-            const errorDiv = document.getElementById('error');
-            
-            // Masquer les divs de résultat et d'erreur au chargement
-            resultDiv.style.display = 'none';
-            errorDiv.style.display = 'none';
-        });
+            let programme = '';
+            let temperature = '';
+            let conseils = '';
+
+            // Logique pour déterminer le programme
+            if (type.includes('coton') || type.includes('serviette') || type.includes('drap')) {
+                if (color === 'blanc' && soil === 'tres') {
+                    programme = 'Coton intensif';
+                    temperature = '60°C';
+                    conseils = 'Utilisez de la lessive pour blanc avec agent blanchissant';
+                } else {
+                    programme = 'Coton standard';
+                    temperature = '40°C';
+                    conseils = 'Utilisez une lessive adaptée à la couleur';
+                }
+            } else if (type.includes('synthetique') || type.includes('polyester') || type.includes('t-shirt')) {
+                programme = 'Synthétique';
+                temperature = '30°C';
+                conseils = 'Évitez de trop charger le tambour';
+            } else if (type.includes('delicat') || type.includes('soie') || type.includes('lingerie')) {
+                programme = 'Délicat';
+                temperature = '30°C';
+                conseils = 'Utilisez un filet de lavage si possible';
+            } else if (type.includes('laine') || type.includes('pull') || type.includes('cachemire')) {
+                programme = 'Laine/Main';
+                temperature = '20°C';
+                conseils = 'Utilisez une lessive spéciale laine';
+            } else if (type.includes('jean') || type.includes('veste')) {
+                programme = 'Jean/Robuste';
+                temperature = '40°C';
+                conseils = 'Retournez le vêtement avant le lavage';
+            } else if (type.includes('chemise')) {
+                programme = 'Chemises';
+                temperature = '30°C';
+                conseils = 'Utilisez le programme spécial chemises si disponible';
+            } else {
+                // Programme par défaut pour les types non reconnus
+                programme = 'Standard';
+                temperature = '30°C';
+                conseils = 'En cas de doute, consultez l'étiquette d'entretien du vêtement';
+            }
+
+            // Ajustement selon le niveau de saleté
+            if (soil === 'leger' && temperature === '40°C') {
+                temperature = '30°C';
+            } else if (soil === 'tres' && temperature === '30°C') {
+                temperature = '40°C';
+            }
+
+            document.getElementById('programme').textContent = programme;
+            document.getElementById('temperature').textContent = temperature;
+            document.getElementById('conseils').textContent = conseils;
+            document.getElementById('result').style.display = 'block';
+        }
     </script>
 </body>
 </html>
