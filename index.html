@@ -17,18 +17,18 @@
         .container { 
             max-width: 500px; 
             margin: 0 auto; 
-            background-color: rgba(28, 45, 76, 0.85); 
+            background-color: rgba(28, 45, 76, 0.4);
             padding: 20px; 
             border-radius: 12px; 
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+            backdrop-filter: blur(4px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         h1 { 
             text-align: center; 
-            color: #4aa9ff;
+            color: #ffffff;
             margin-bottom: 30px;
-            text-shadow: 0 0 10px rgba(74, 169, 255, 0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             font-size: 28px;
         }
         .input-container { 
@@ -40,7 +40,7 @@
             padding: 12px; 
             font-size: 16px; 
             border: 1px solid rgba(74, 169, 255, 0.3);
-            background-color: rgba(28, 45, 76, 0.9); 
+            background-color: rgba(28, 45, 76, 0.4);
             color: #ffffff;
             border-radius: 4px 0 0 4px; 
         }
@@ -49,11 +49,11 @@
         }
         #newNote:focus {
             outline: none;
-            border-color: #4aa9ff;
+            border-color: rgba(74, 169, 255, 0.6);
             box-shadow: 0 0 0 2px rgba(74, 169, 255, 0.2);
         }
         #addNote { 
-            background-color: #4aa9ff; 
+            background-color: rgba(74, 169, 255, 0.6);
             color: white; 
             border: none; 
             padding: 12px 24px; 
@@ -61,17 +61,18 @@
             cursor: pointer; 
             border-radius: 0 4px 4px 0;
             transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
         }
         #addNote:hover {
-            background-color: #3498ff;
-            box-shadow: 0 0 15px rgba(74, 169, 255, 0.5);
+            background-color: rgba(74, 169, 255, 0.8);
+            box-shadow: 0 0 15px rgba(74, 169, 255, 0.3);
         }
         ul { 
             list-style-type: none; 
             padding: 0; 
         }
         li { 
-            background-color: rgba(37, 59, 97, 0.8); 
+            background-color: rgba(37, 59, 97, 0.4);
             border: 1px solid rgba(74, 169, 255, 0.2); 
             margin-bottom: 10px; 
             padding: 12px; 
@@ -79,18 +80,22 @@
             display: flex; 
             align-items: center;
             transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
         }
         li:hover {
             transform: translateX(5px);
-            background-color: rgba(45, 71, 115, 0.9);
+            background-color: rgba(45, 71, 115, 0.6);
             box-shadow: 0 0 15px rgba(74, 169, 255, 0.2);
+        }
+        li span {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
         .completed { 
             text-decoration: line-through; 
-            color: rgba(255, 255, 255, 0.5); 
+            color: rgba(255, 255, 255, 0.4); 
         }
         .delete { 
-            background-color: rgba(255, 76, 76, 0.9); 
+            background-color: rgba(255, 76, 76, 0.6);
             color: white; 
             border: none; 
             padding: 8px 12px; 
@@ -98,16 +103,17 @@
             cursor: pointer; 
             border-radius: 4px;
             transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
         }
         .delete:hover {
-            background-color: rgba(255, 76, 76, 1);
-            box-shadow: 0 0 10px rgba(255, 76, 76, 0.5);
+            background-color: rgba(255, 76, 76, 0.8);
+            box-shadow: 0 0 10px rgba(255, 76, 76, 0.3);
         }
         input[type="checkbox"] {
             margin-right: 10px;
             width: 18px;
             height: 18px;
-            accent-color: #4aa9ff;
+            accent-color: rgba(74, 169, 255, 0.8);
             cursor: pointer;
         }
         @keyframes fadeIn {
@@ -118,9 +124,9 @@
             animation: fadeIn 0.3s ease;
         }
         @keyframes glow {
-            0% { box-shadow: 0 0 5px rgba(74, 169, 255, 0.2); }
-            50% { box-shadow: 0 0 20px rgba(74, 169, 255, 0.4); }
-            100% { box-shadow: 0 0 5px rgba(74, 169, 255, 0.2); }
+            0% { box-shadow: 0 0 5px rgba(74, 169, 255, 0.1); }
+            50% { box-shadow: 0 0 20px rgba(74, 169, 255, 0.2); }
+            100% { box-shadow: 0 0 5px rgba(74, 169, 255, 0.1); }
         }
         .container {
             animation: glow 4s infinite;
