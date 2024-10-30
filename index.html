@@ -3,32 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Liste de Tâches Partagée</title>
+    <title>Ma Liste de Tâches</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
             padding: 20px;
             min-height: 100vh;
-            background: url('./image/copilot_image_1730033652660.jpeg') no-repeat center center fixed;
-            background-size: cover;
-            color: #ffffff;
+            background: url('https://raw.githubusercontent.com/strene76/ma-liste-de-taches/main/images/copilot_image_1730033652660.jpeg') no-repeat center center fixed;
+    background-size: cover;
+    color: #ffffff;
         }
         .container { 
             max-width: 500px; 
             margin: 0 auto; 
-            background-color: rgba(45, 45, 45, 0.85); 
+            background-color: rgba(28, 45, 76, 0.85); 
             padding: 20px; 
             border-radius: 12px; 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         h1 { 
             text-align: center; 
-            color: #ffffff;
+            color: #4aa9ff;
             margin-bottom: 30px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 0 10px rgba(74, 169, 255, 0.5);
+            font-size: 28px;
         }
         .input-container { 
             display: flex; 
@@ -38,8 +39,8 @@
             flex-grow: 1; 
             padding: 12px; 
             font-size: 16px; 
-            border: none; 
-            background-color: rgba(64, 64, 64, 0.8); 
+            border: 1px solid rgba(74, 169, 255, 0.3);
+            background-color: rgba(28, 45, 76, 0.9); 
             color: #ffffff;
             border-radius: 4px 0 0 4px; 
         }
@@ -48,48 +49,48 @@
         }
         #newNote:focus {
             outline: none;
-            background-color: rgba(74, 74, 74, 0.9);
-            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+            border-color: #4aa9ff;
+            box-shadow: 0 0 0 2px rgba(74, 169, 255, 0.2);
         }
         #addNote { 
-            background-color: rgba(76, 175, 80, 0.9); 
+            background-color: #4aa9ff; 
             color: white; 
             border: none; 
-            padding: 12px 20px; 
+            padding: 12px 24px; 
             font-size: 16px; 
             cursor: pointer; 
             border-radius: 0 4px 4px 0;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
         }
         #addNote:hover {
-            background-color: rgba(61, 139, 64, 0.9);
+            background-color: #3498ff;
+            box-shadow: 0 0 15px rgba(74, 169, 255, 0.5);
         }
         ul { 
             list-style-type: none; 
             padding: 0; 
         }
         li { 
-            background-color: rgba(64, 64, 64, 0.8); 
-            border: 1px solid rgba(80, 80, 80, 0.5); 
+            background-color: rgba(37, 59, 97, 0.8); 
+            border: 1px solid rgba(74, 169, 255, 0.2); 
             margin-bottom: 10px; 
             padding: 12px; 
             border-radius: 8px; 
             display: flex; 
             align-items: center;
             transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
         }
         li:hover {
-            background-color: rgba(69, 69, 69, 0.9);
             transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            background-color: rgba(45, 71, 115, 0.9);
+            box-shadow: 0 0 15px rgba(74, 169, 255, 0.2);
         }
         .completed { 
             text-decoration: line-through; 
             color: rgba(255, 255, 255, 0.5); 
         }
         .delete { 
-            background-color: rgba(220, 53, 69, 0.9); 
+            background-color: rgba(255, 76, 76, 0.9); 
             color: white; 
             border: none; 
             padding: 8px 12px; 
@@ -99,14 +100,15 @@
             transition: all 0.3s ease;
         }
         .delete:hover {
-            background-color: rgba(200, 35, 51, 0.9);
-            transform: scale(1.05);
+            background-color: rgba(255, 76, 76, 1);
+            box-shadow: 0 0 10px rgba(255, 76, 76, 0.5);
         }
         input[type="checkbox"] {
             margin-right: 10px;
             width: 18px;
             height: 18px;
-            accent-color: #4CAF50;
+            accent-color: #4aa9ff;
+            cursor: pointer;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
@@ -115,13 +117,21 @@
         li {
             animation: fadeIn 0.3s ease;
         }
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(74, 169, 255, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(74, 169, 255, 0.4); }
+            100% { box-shadow: 0 0 5px rgba(74, 169, 255, 0.2); }
+        }
+        .container {
+            animation: glow 4s infinite;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Liste de Tâches</h1>
+        <h1>Ma Liste de Tâches</h1>
         <div class="input-container">
             <input type="text" id="newNote" placeholder="Ajouter une nouvelle tâche...">
             <button id="addNote">+</button>
@@ -130,12 +140,12 @@
     </div>
 
     <script>
-        // Le reste du code JavaScript reste identique
-        // Configuration Firebase et fonctions
+        // Configuration Firebase (à remplacer par vos propres détails de configuration)
         const firebaseConfig = {
-            // Votre configuration Firebase ici
+            // Votre configuration Firebase
         };
 
+        // Initialiser Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const notesRef = database.ref('notes');
