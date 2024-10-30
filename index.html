@@ -11,8 +11,8 @@
             padding: 20px;
             min-height: 100vh;
             background: url('https://raw.githubusercontent.com/strene76/ma-liste-de-taches/main/images/copilot_image_1730033652660.jpeg') no-repeat center center fixed;
-    background-size: cover;
-    color: #ffffff;
+            background-size: cover;
+            color: #ffffff;
         }
         .container { 
             max-width: 500px; 
@@ -140,73 +140,108 @@
     </div>
 
     <script>
-        // Configuration Firebase (à remplacer par vos propres détails de configuration)
+        // Configuration Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
-  authDomain: "ma-liste-de-taches.firebaseapp.com",
-  databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
-  projectId: "ma-liste-de-taches",
-  storageBucket: "ma-liste-de-taches.appspot.com",
-  messagingSenderId: "614607808736",
-  appId: "1:614607808736:web:d4490906c783cb14040885"
+            authDomain: "ma-liste-de-taches.firebaseapp.com",
+            databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
+            projectId: "ma-liste-de-taches",
+            storageBucket: "ma-liste-de-taches.appspot.com",
+            messagingSenderId: "614607808736",
+            appId: "1:614607808736:web:d4490906c783cb14040885"
         };
 
-        // Initialiser Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const notesRef = database.ref('notes');
+        try {
+            // Initialiser Firebase avec gestion d'erreur
+            firebase.initializeApp(firebaseConfig);
+            console.log("Firebase initialisé avec succès");
+            
+            const database = firebase.database();
+            const notesRef = database.ref('notes');
+            console.log("Référence à la base de données créée");
 
-        function renderNote(key, note) {
-            const li = document.createElement('li');
-            li.setAttribute('data-key', key);
-            li.innerHTML = `
-                <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote('${key}', ${note.completed})">
-                <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
-                <button class="delete" onclick="deleteNote('${key}')">×</button>
-            `;
-            return li;
-        }
-
-        function addNote() {
-            const newNoteInput = document.getElementById('newNote');
-            const noteText = newNoteInput.value.trim();
-            if (noteText !== '') {
-                notesRef.push({ text: noteText, completed: false });
-                newNoteInput.value = '';
+            function renderNote(key, note) {
+                const li = document.createElement('li');
+                li.setAttribute('data-key', key);
+                li.innerHTML = `
+                    <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote('${key}', ${note.completed})">
+                    <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
+                    <button class="delete" onclick="deleteNote('${key}')">×</button>
+                `;
+                return li;
             }
-        }
 
-        function toggleNote(key, completed) {
-            notesRef.child(key).update({ completed: !completed });
-        }
-
-        function deleteNote(key) {
-            notesRef.child(key).remove();
-        }
-
-        notesRef.on('child_added', snapshot => {
-            const noteList = document.getElementById('noteList');
-            noteList.appendChild(renderNote(snapshot.key, snapshot.val()));
-        });
-
-        notesRef.on('child_changed', snapshot => {
-            const liToUpdate = document.querySelector(`li[data-key="${snapshot.key}"]`);
-            if (liToUpdate) {
-                liToUpdate.parentNode.replaceChild(renderNote(snapshot.key, snapshot.val()), liToUpdate);
+            function addNote() {
+                console.log("Tentative d'ajout d'une note");
+                const newNoteInput = document.getElementById('newNote');
+                const noteText = newNoteInput.value.trim();
+                if (noteText !== '') {
+                    notesRef.push({ text: noteText, completed: false })
+                        .then(() => {
+                            console.log("Note ajoutée avec succès");
+                            newNoteInput.value = '';
+                        })
+                        .catch(error => {
+                            console.error("Erreur lors de l'ajout de la note:", error);
+                            alert("Erreur lors de l'ajout de la note");
+                        });
+                }
             }
-        });
 
-        notesRef.on('child_removed', snapshot => {
-            const liToRemove = document.querySelector(`li[data-key="${snapshot.key}"]`);
-            if (liToRemove) {
-                liToRemove.remove();
+            function toggleNote(key, completed) {
+                console.log("Tentative de modification de l'état:", key);
+                notesRef.child(key).update({ completed: !completed })
+                    .then(() => console.log("État modifié avec succès"))
+                    .catch(error => {
+                        console.error("Erreur lors de la modification:", error);
+                        alert("Erreur lors de la modification de l'état");
+                    });
             }
-        });
 
-        document.getElementById('addNote').addEventListener('click', addNote);
-        document.getElementById('newNote').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') addNote();
-        });
+            function deleteNote(key) {
+                console.log("Tentative de suppression:", key);
+                notesRef.child(key).remove()
+                    .then(() => console.log("Note supprimée avec succès"))
+                    .catch(error => {
+                        console.error("Erreur lors de la suppression:", error);
+                        alert("Erreur lors de la suppression");
+                    });
+            }
+
+            // Écouteurs d'événements Firebase
+            notesRef.on('child_added', snapshot => {
+                console.log("Nouvelle note détectée:", snapshot.key);
+                const noteList = document.getElementById('noteList');
+                noteList.appendChild(renderNote(snapshot.key, snapshot.val()));
+            });
+
+            notesRef.on('child_changed', snapshot => {
+                console.log("Note modifiée:", snapshot.key);
+                const liToUpdate = document.querySelector(`li[data-key="${snapshot.key}"]`);
+                if (liToUpdate) {
+                    liToUpdate.parentNode.replaceChild(renderNote(snapshot.key, snapshot.val()), liToUpdate);
+                }
+            });
+
+            notesRef.on('child_removed', snapshot => {
+                console.log("Note supprimée:", snapshot.key);
+                const liToRemove = document.querySelector(`li[data-key="${snapshot.key}"]`);
+                if (liToRemove) {
+                    liToRemove.remove();
+                }
+            });
+
+            // Écouteurs d'événements du DOM
+            document.getElementById('addNote').addEventListener('click', addNote);
+            document.getElementById('newNote').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addNote();
+            });
+
+            console.log("Application initialisée avec succès");
+        } catch (error) {
+            console.error("Erreur lors de l'initialisation:", error);
+            alert("Erreur lors de l'initialisation de l'application");
+        }
     </script>
 </body>
 </html>
