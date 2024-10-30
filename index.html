@@ -1,1 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste de Tâches</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px;
+            min-height: 100vh;
+            background: url('https://raw.githubusercontent.com/strene76/ma-liste-de-taches/main/images/copilot_image_1730033652660.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
+        }
+        .container { 
+            max-width: 500px; 
+            margin: 0 auto; 
+            background-color: rgba(28, 45, 76, 0.85); 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 { 
+            text-align: center; 
+            color: #4aa9ff;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(74, 169, 255, 0.5);
+            font-size: 28px;
+        }
+        .input-container { 
+            display: flex; 
+            margin-bottom: 20px; 
+        }
+        #newNote { 
+            flex-grow: 1; 
+            padding: 12px; 
+            font-size: 16px; 
+            border: 1px solid rgba(74, 169, 255, 0.3);
+            background-color: rgba(28, 45, 76, 0.9); 
+            color: #ffffff;
+            border-radius: 4px 0 0 4px; 
+        }
+        #newNote::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        #newNote:focus {
+            outline: none;
+            border-color: #4aa9ff;
+            box-shadow: 0 0 0 2px rgba(74, 169, 255, 0.2);
+        }
+        #addNote { 
+            background-color: #4aa9ff; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            border-radius: 0 4px 4px 0;
+            transition: all 0.3s ease;
+        }
+        #addNote:hover {
+            background-color: #3498ff;
+            box-shadow: 0 0 15px rgba(74, 169, 255, 0.5);
+        }
+        ul { 
+            list-style-type: none; 
+            padding: 0; 
+        }
+        li { 
+            background-color: rgba(37, 59, 97, 0.8); 
+            border: 1px solid rgba(74, 169, 255, 0.2); 
+            margin-bottom: 10px; 
+            padding: 12px; 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        li:hover {
+            transform: translateX(5px);
+            background-color: rgba(45, 71, 115, 0.9);
+            box-shadow: 0 0 15px rgba(74, 169, 255, 0.2);
+        }
+        .completed { 
+            text-decoration: line-through; 
+            color: rgba(255, 255, 255, 0.5); 
+        }
+        .delete { 
+            background-color: rgba(255, 76, 76, 0.9); 
+            color: white; 
+            border: none; 
+            padding: 8px 12px; 
+            margin-left: 10px; 
+            cursor: pointer; 
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .delete:hover {
+            background-color: rgba(255, 76, 76, 1);
+            box-shadow: 0 0 10px rgba(255, 76, 76, 0.5);
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            accent-color: #4aa9ff;
+            cursor: pointer;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        li {
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(74, 169, 255, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(74, 169, 255, 0.4); }
+            100% { box-shadow: 0 0 5px rgba(74, 169, 255, 0.2); }
+        }
+        .container {
+            animation: glow 4s infinite;
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Ma Liste de Tâches</h1>
+        <div class="input-container">
+            <input type="text" id="newNote" placeholder="Ajouter une nouvelle tâche...">
+            <button id="addNote">+</button>
+        </div>
+        <ul id="noteList"></ul>
+    </div>
 
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBapVUX-eTBclzbmhy4lR88aQmoBrSEZ2U",
+            authDomain: "ma-liste-de-taches.firebaseapp.com",
+            databaseURL: "https://ma-liste-de-taches-default-rtdb.firebaseio.com",
+            projectId: "ma-liste-de-taches",
+            storageBucket: "ma-liste-de-taches.appspot.com",
+            messagingSenderId: "614607808736",
+            appId: "1:614607808736:web:d4490906c783cb14040885"
+        };
+
+        try {
+            // Initialiser Firebase avec gestion d'erreur
+            firebase.initializeApp(firebaseConfig);
+            console.log("Firebase initialisé avec succès");
+            
+            const database = firebase.database();
+            const notesRef = database.ref('notes');
+            console.log("Référence à la base de données créée");
+
+            function renderNote(key, note) {
+                const li = document.createElement('li');
+                li.setAttribute('data-key', key);
+                li.innerHTML = `
+                    <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleNote('${key}', ${note.completed})">
+                    <span class="${note.completed ? 'completed' : ''}">${note.text}</span>
+                    <button class="delete" onclick="deleteNote('${key}')">×</button>
+                `;
+                return li;
+            }
+
+            function addNote() {
+                console.log("Tentative d'ajout d'une note");
+                const newNoteInput = document.getElementById('newNote');
+                const noteText = newNoteInput.value.trim();
+                if (noteText !== '') {
+                    notesRef.push({ text: noteText, completed: false })
+                        .then(() => {
+                            console.log("Note ajoutée avec succès");
+                            newNoteInput.value = '';
+                        })
+                        .catch(error => {
+                            console.error("Erreur lors de l'ajout de la note:", error);
+                            alert("Erreur lors de l'ajout de la note");
+                        });
+                }
+            }
+
+            function toggleNote(key, completed) {
+                console.log("Tentative de modification de l'état:", key);
+                notesRef.child(key).update({ completed: !completed })
+                    .then(() => console.log("État modifié avec succès"))
+                    .catch(error => {
+                        console.error("Erreur lors de la modification:", error);
+                        alert("Erreur lors de la modification de l'état");
+                    });
+            }
+
+            function deleteNote(key) {
+                console.log("Tentative de suppression:", key);
+                notesRef.child(key).remove()
+                    .then(() => console.log("Note supprimée avec succès"))
+                    .catch(error => {
+                        console.error("Erreur lors de la suppression:", error);
+                        alert("Erreur lors de la suppression");
+                    });
+            }
+
+            // Écouteurs d'événements Firebase
+            notesRef.on('child_added', snapshot => {
+                console.log("Nouvelle note détectée:", snapshot.key);
+                const noteList = document.getElementById('noteList');
+                noteList.appendChild(renderNote(snapshot.key, snapshot.val()));
+            });
+
+            notesRef.on('child_changed', snapshot => {
+                console.log("Note modifiée:", snapshot.key);
+                const liToUpdate = document.querySelector(`li[data-key="${snapshot.key}"]`);
+                if (liToUpdate) {
+                    liToUpdate.parentNode.replaceChild(renderNote(snapshot.key, snapshot.val()), liToUpdate);
+                }
+            });
+
+            notesRef.on('child_removed', snapshot => {
+                console.log("Note supprimée:", snapshot.key);
+                const liToRemove = document.querySelector(`li[data-key="${snapshot.key}"]`);
+                if (liToRemove) {
+                    liToRemove.remove();
+                }
+            });
+
+            // Écouteurs d'événements du DOM
+            document.getElementById('addNote').addEventListener('click', addNote);
+            document.getElementById('newNote').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addNote();
+            });
+
+            console.log("Application initialisée avec succès");
+        } catch (error) {
+            console.error("Erreur lors de l'initialisation:", error);
+            alert("Erreur lors de l'initialisation de l'application");
+        }
+    </script>
+</body>
+</html>
