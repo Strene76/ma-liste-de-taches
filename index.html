@@ -8,22 +8,28 @@
         body { 
     font-family: Arial, sans-serif; 
     margin: 0; 
-    padding: 10px; /* Réduit le padding */
+    padding: 10px;
     min-height: 100vh;
-    background: url('https://raw.githubusercontent.com/strene76/ma-liste-de-taches/main/images/copilot_image_1730033652660.jpeg') no-repeat center center fixed;
-    background-size: cover;
+    background: url('https://raw.githubusercontent.com/strene76/ma-liste-de-taches/main/images/copilot_image_1730033652660.jpeg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 80% auto; /* Réduit la taille de l'image à 80% de la largeur */
+    background-attachment: fixed;
+    background-color: #1a1a1a; /* Couleur de fond pour les bords */
     color: #ffffff;
 }
         .container { 
-    max-width: 400px; /* Réduit de 500px à 400px */
+    max-width: 300px; /* Réduit la largeur du conteneur */
     margin: 0 auto;
-    margin-top: 10px; /* Ajoute un espace en haut */
-    background-color: rgba(28, 45, 76, 0.25); /* Plus transparent */
-    padding: 15px; /* Réduit le padding */
+    margin-top: 10px;
+    background-color: rgba(28, 45, 76, 0.25);
+    padding: 15px;
     border-radius: 12px; 
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
     backdrop-filter: blur(3px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 1;
 }
         h1 { 
             text-align: center; 
